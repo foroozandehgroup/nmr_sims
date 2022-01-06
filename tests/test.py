@@ -1,10 +1,15 @@
+# test.py
+# Simon Hulse
+# simon.hulse@chem.ox.ac.uk
+# Last Edited: Fri 31 Dec 2021 13:53:16 GMT
+
 import numpy as np
 from nmr_sims import Operator
 
 
 class Test:
     @staticmethod
-    def _check_close(a, b):
+    def close(a, b):
         return np.allclose(a, b, rtol=0.0, atol=1E-10)
 
     def test_operator(self):
@@ -12,42 +17,42 @@ class Test:
         sqrt3 = np.sqrt(3)
         sqrt5 = np.sqrt(5)
         Ix_half = Operator.Ix(0.5)
-        assert self._check_close(
+        assert self.close(
             Ix_half.matrix, np.array([[0.0, 0.5], [0.5, 0.0]], dtype="complex")
         )
         Iy_half = Operator.Iy(0.5)
-        assert self._check_close(
+        assert self.close(
             Iy_half.matrix, np.array([[0.0, -0.5j], [0.5j, 0.0]], dtype="complex")
         )
         Iz_half = Operator.Iz(0.5)
-        assert self._check_close(
+        assert self.close(
             Iz_half.matrix, np.array([[0.5, 0.0], [0.0, -0.5]], dtype="complex")
         )
         Iplus_half = Operator.Iplus(0.5)
-        assert self._check_close(
+        assert self.close(
             Iplus_half.matrix, np.array([[0.0, 1.0], [0.0, 0.0]], dtype="complex")
         )
         Iminus_half = Operator.Iminus(0.5)
-        assert self._check_close(
+        assert self.close(
             Iminus_half.matrix, np.array([[0.0, 0.0], [1.0, 0.0]], dtype="complex")
         )
 
         Ix_one = Operator.Ix(1)
-        assert self._check_close(
+        assert self.close(
             Ix_one.matrix,
             (1 / sqrt2) * np.array([
                 [0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]
             ], dtype="complex"),
         )
         Iy_one = Operator.Iy(1)
-        assert self._check_close(
+        assert self.close(
             Iy_one.matrix,
             (1j / sqrt2) * np.array([
                 [0.0, -1.0, 0.0], [1.0, 0.0, -1.0], [0.0, 1.0, 0.0]
             ], dtype="complex"),
         )
         Iz_one = Operator.Iz(1)
-        assert self._check_close(
+        assert self.close(
             Iz_one.matrix,
             np.array([
                 [1.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, -1.0]
@@ -55,7 +60,7 @@ class Test:
         )
 
         Ix_three_halves = Operator.Ix(1.5)
-        assert self._check_close(
+        assert self.close(
             Ix_three_halves.matrix,
             0.5 * np.array([
                 [0.0, sqrt3, 0.0, 0.0],
@@ -65,7 +70,7 @@ class Test:
             ], dtype="complex"),
         )
         Iy_three_halves = Operator.Iy(1.5)
-        assert self._check_close(
+        assert self.close(
             Iy_three_halves.matrix,
             -0.5j * np.array([
                 [0.0, sqrt3, 0.0, 0.0],
@@ -75,7 +80,7 @@ class Test:
             ], dtype="complex"),
         )
         Iz_three_halves = Operator.Iz(1.5)
-        assert self._check_close(
+        assert self.close(
             Iz_three_halves.matrix,
             0.5 * np.array([
                 [3.0, 0.0, 0.0, 0.0],
@@ -86,7 +91,7 @@ class Test:
         )
 
         Ix_five_halves = Operator.Ix(2.5)
-        assert self._check_close(
+        assert self.close(
             Ix_five_halves.matrix,
             0.5 * np.array([
                 [0.0, sqrt5, 0.0, 0.0, 0.0, 0.0],

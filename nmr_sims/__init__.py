@@ -1,12 +1,12 @@
 # __init__.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Wed 22 Dec 2021 21:21:18 GMT
+# Last Edited: Mon 10 Jan 2022 15:19:42 GMT
 
 from __future__ import annotations
 from pathlib import Path
 import re
-from typing import Optional, Union
+from typing import Any, Union
 import numpy as np
 import numpy.linalg as nlinalg
 import scipy.linalg as slinalg
@@ -24,119 +24,121 @@ def _diagonal_indices(size: int, k: int = 0):
         return rows, cols
 
 
+def is_multiple_of_one_half(x):
+    return round(x, 10) % 0.5 == 0
+
+
 class Operator:
-    def __init__(self, I: float, nspins: int = 1, matrix: Optional[np.ndarray] = None):
-        assert round(I % 0.5, 10) == 0.
-        assert isinstance(nspins, int) and nspins >= 1
-        self.I = I
-        self.nspins = nspins
-        if matrix is None:
-            self.matrix = np.zeros((self.dim, self.dim))
+    def __init__(self, matrix: np.ndarray):
+        if not isinstance(matrix, np.ndarray):
+            raise TypeError("`matrix` should be a NumPy array.")
+        shape = matrix.shape
+        if len(shape) == 2 and (shape[0] == shape[1]):
+            self.matrix = matrix.astype("complex")
         else:
-            assert all([self.dim == matrix.shape[i] for i in range(2)])
-            self.matrix = matrix
+            raise ValueError("`matrix` should be a square 2D array.")
 
     def __str__(self) -> str:
         return str(self.matrix)
 
     def __eq__(self, other: Operator) -> bool:
-        return (self.I == other.I) and np.array_equal(self.matrix, other.matrix)
+        self._check_other_is_same_dim_operator(other)
+        return np.allclose(self.matrix, other.matrix, rtol=0, atol=1E-10)
 
     def __neg__(self) -> Operator:
-        matrix = -self.matrix
-        return Operator(I=self.I, nspins=self.nspins, matrix=matrix)
+        return Operator(-self.matrix)
 
     def __add__(self, other: Operator) -> Operator:
-        matrix = self.matrix + other.matrix
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+        self._check_other_is_same_dim_operator(other)
+        return Operator(self.matrix + other.matrix)
 
     def __sub__(self, other: Operator) -> Operator:
-        matrix = self.matrix - other.matrix
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+        self._check_other_is_same_dim_operator(other)
+        return Operator(self.matrix - other.matrix)
 
-    def __mul__(
-        self, other: Union[int, float, complex, Operator, np.ndarray]
-    ) -> Operator:
-        if isinstance(other, (int, float, complex, np.ndarray)):
-            matrix = self.matrix * other
-        elif isinstance(other, Operator):
-            matrix = self.matrix * other.matrix
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+    def __mul__(self, other: Union[int, float, complex]) -> Operator:
+        if isinstance(other, (int, float, complex)):
+            return Operator(self.matrix * other)
+        else:
+            raise TypeError(f"{other} must be a scalar.")
 
-    def __rmul__(
-        self, other: Union[int, float, complex, Operator, np.ndarray]
-    ) -> Operator:
-        if isinstance(other, (int, float, complex, np.ndarray)):
-            matrix = other * self.matrix
-        elif isinstance(other, Operator):
-            matrix = self.other * self.matrix
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+    def __rmul__(self, other: Union[int, float, complex]) -> Operator:
+        if isinstance(other, (int, float, complex)):
+            return Operator(other * self.matrix)
+        else:
+            raise TypeError(f"{other} must be a scalar.")
 
     def __matmul__(self, other: Union[np.ndarray, Operator]) -> Operator:
-        if isinstance(other, np.ndarray):
-            matrix = self.matrix @ other
-        elif isinstance(other, Operator):
-            matrix = self.matrix @ other.matrix
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+        if isinstance(other, Operator):
+            return Operator(self.matrix @ other.matrix)
+        else:
+            raise TypeError(f"{other} must be an `Operator`.")
 
-    def __rmatmul__(self, other: Union[np.ndarray, Operator]) -> Operator:
-        if isinstance(other, np.ndarray):
-            matrix = other @ self.matrix
-        elif isinstance(other, Operator):
-            matrix = other.matrix @ self.matrix
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+    def __pow__(self, power: Union[int, float, complex]) -> Operator:
+        if isinstance(power, (int, float, complex)):
+            return Operator(nlinalg.matrix_power(self.matrix, power))
+        else:
+            raise TypeError("`power` should be a scalar.")
 
-    def __pow__(self, power: Union[int, float]) -> Operator:
-        matrix = nlinalg.matrix_power(self.matrix, power)
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+    @property
+    def dim(self):
+        return self.matrix.shape[0]
 
     @property
     def adjoint(self) -> Operator:
-        matrix = self.matrix.conj().T
-        return Operator(self.I, nspins=self.nspins, matrix=matrix)
+        return Operator(self.matrix.conj().T)
 
     @property
     def trace(self) -> float:
         return np.einsum('ii', self.matrix)
 
     def expectation(self, other: Operator) -> float:
-        return np.einsum("ij,ij->", other.adjoint.matrix, self.matrix)
+        self._check_other_is_same_dim_operator(other)
+        return np.einsum("ij,ij->", other.matrix.T, self.matrix)
 
     def commutator(self, other: Operator) -> Operator:
-        """Compute [self, other]."""
-        self._assert_same_spin_and_shape(other)
+        self._check_other_is_same_dim_operator(other)
         return (self @ other) - (other @ self)
 
     def commutes_with(self, other: Operator) -> bool:
-        return np.allclose(
-            np.zeros((self.dim, self.dim), dtype="complex"),
-            self.commutator(other).matrix,
-            atol=1E-10,
-            rtol=0,
-        )
+        self._check_other_is_same_dim_operator(other)
+        return self.commutator(other) == Operator(np.zeros((self.dim, self.dim)))
 
     def kroenecker(self, other: Operator) -> Operator:
-        self._assert_same_spin(other)
-        matrix = np.kron(self.matrix, other.matrix)
-        nspins = self.nspins + other.nspins
-        return Operator(self.I, nspins=nspins, matrix=matrix)
+        self._check_other_is_operator(other)
+        return Operator(np.kron(self.matrix, other.matrix))
 
     def rotation_operator(self, angle: float) -> Operator:
-        return Operator(
-            self.I, nspins=self.nspins, matrix=slinalg.expm(-1j * angle * self.matrix)
-        )
+        if isinstance(angle, (int, float)):
+            return Operator(slinalg.expm(-1j * angle * self.matrix))
+        else:
+            raise TypeError("`angle` should be a scalar.")
 
     def propagate(self, propagator: Operator) -> Operator:
+        self._check_other_is_same_dim_operator(propagator)
         return propagator @ self @ propagator.adjoint
 
-    def _assert_same_spin(self, other):
-        assert self.I == other.I
+    def _check_other_is_operator(self, other: Any) -> None:
+        if not isinstance(other, Operator):
+            raise TypeError(f"{other} should be an `Operator`.")
 
-    def _assert_same_spin_and_shape(self, other):
-        assert (self.I == other.I) and (self.nspins == other.nspins)
+    def _check_other_is_same_dim_operator(self, other: Any) -> None:
+        if not isinstance(other, Operator):
+            raise TypeError(f"{other} should be an `Operator`.")
+        elif not self.matrix.shape == other.matrix.shape:
+            raise ValueError(
+                f"Operator dimension should match, but are{self.matrix.shape}"
+                f"and {other.matrix.shape}."
+            )
+
+    @staticmethod
+    def _check_I_is_a_multiple_of_one_half(I: Union[int, float]) -> None:
+        if not is_multiple_of_one_half(I):
+            raise ValueError(f"`I` should be a multiple of 1/2, but is {I}")
 
     @classmethod
-    def Ix(cls, I: float) -> Operator:
+    def Ix(cls, I: Union[int, float]) -> Operator:
+        cls._check_I_is_a_multiple_of_one_half(I)
         dim = int(2 * I + 1)
         matrix = np.zeros((dim, dim), dtype="complex")
         matrix[_diagonal_indices(dim, k=1)] = 0.5 * np.sqrt(
@@ -145,10 +147,11 @@ class Operator:
         matrix[_diagonal_indices(dim, k=-1)] = 0.5 * np.sqrt(
             [I * (I + 1) - m * (m - 1) for m in np.linspace(-I + 1, I, dim - 1)]
         )
-        return cls(I, matrix=matrix)
+        return cls(matrix)
 
     @classmethod
-    def Iy(cls, I: float) -> Operator:
+    def Iy(cls, I: Union[int, float]) -> Operator:
+        cls._check_I_is_a_multiple_of_one_half(I)
         dim = int(2 * I + 1)
         matrix = np.zeros((dim, dim), dtype="complex")
         matrix[_diagonal_indices(dim, k=1)] = -0.5j * np.sqrt(
@@ -157,79 +160,89 @@ class Operator:
         matrix[_diagonal_indices(dim, k=-1)] = 0.5j * np.sqrt(
             [I * (I + 1) - m * (m - 1) for m in np.linspace(-I + 1, I, dim - 1)]
         )
-        return cls(I, matrix=matrix)
+        return cls(matrix)
 
     @classmethod
-    def Iz(cls, I: float) -> Operator:
+    def Iz(cls, I: Union[int, float]) -> Operator:
+        cls._check_I_is_a_multiple_of_one_half(I)
         dim = int(2 * I + 1)
         matrix = np.zeros((dim, dim), dtype="complex")
         matrix[_diagonal_indices(dim)] = np.round(np.linspace(I, -I, dim), 1)
-        return cls(I, matrix=matrix)
+        return cls(matrix)
 
     @classmethod
-    def E(cls, I: float) -> Operator:
+    def E(cls, I: Union[int, float]) -> Operator:
+        # TODO: Constant factor depending on I?
+        cls._check_I_is_a_multiple_of_one_half(I)
         dim = int(2 * I + 1)
-        return cls(I, matrix=0.5 * np.eye(dim, dtype="complex"))
+        return cls(0.5 * np.eye(dim, dtype="complex"))
 
     @classmethod
-    def Iplus(cls, I: float) -> Operator:
+    def Iplus(cls, I: Union[int, float]) -> Operator:
+        cls._check_I_is_a_multiple_of_one_half(I)
         dim = int(2 * I + 1)
         matrix = np.zeros((dim, dim), dtype="complex")
         matrix[_diagonal_indices(dim, k=1)] = np.sqrt(
             [I * (I + 1) - m * (m + 1) for m in np.linspace(-I, I - 1, dim - 1)]
         )
-        return cls(I, matrix=matrix)
+        return cls(matrix)
 
     @classmethod
-    def Iminus(cls, I: float) -> Operator:
+    def Iminus(cls, I: Union[int, float]) -> Operator:
         dim = int(2 * I + 1)
         matrix = np.zeros((dim, dim), dtype="complex")
         matrix[_diagonal_indices(dim, k=-1)] = np.sqrt(
             [I * (I + 1) - m * (m - 1) for m in np.linspace(-I + 1, I, dim - 1)]
         )
-        return cls(I, matrix=matrix)
-
-    @property
-    def dim(self) -> int:
-        return int(2 * self.I + 1) ** self.nspins
+        return cls(matrix)
 
 
 class CartesianBasis:
-    def __init__(self, I: float, nspins: int = 1) -> None:
-        assert I % 0.5 == 0.0
-        assert nspins >= 1
-        self._basis_operators = {
-            "x": Operator.Ix(I),
-            "y": Operator.Iy(I),
-            "z": Operator.Iz(I),
-            "e": Operator.E(I),
-        }
+    def __init__(self, *, I: float = 0.5, nspins: int = 1) -> None:
+        if not (isinstance(I, (int, float)) and is_multiple_of_one_half(I)):
+            raise ValueError(f"`I` should be a multiple of 1/2, but is {I}.")
+        if not (isinstance(nspins, int) and nspins > 0):
+            raise ValueError(
+                f"`nspins` should be an int greater than 0 but is {nspins}."
+            )
+        self._Ix = Operator.Ix(I)
+        self._Iy = Operator.Iy(I)
+        self._Iz = Operator.Iz(I)
+        self._E = Operator.E(I)
         self.nspins = nspins
         self.I = I
 
+    @property
+    def dim(self):
+        return int(2 * self.I + 1) ** self.nspins
+
     def get(self, operator: str) -> Operator:
-        assert re.match(r"(\d+(x|y|z))+$", operator)
+        err_preamble = f"`operator` is invalid: \"{operator}\"\n"
+        if not (isinstance(operator, str) and re.match(r"^(\d+(x|y|z))+$", operator)):
+            raise ValueError(
+                f"{err_preamble}Should satisfy the regex ^(\\d+(x|y|z))+$"
+            )
         elements = {}
         for component in re.findall(r"\d+(?:x|y|z)", operator):
             num = int(re.search(r"\d+", component).group(0))
             coord = re.search(r"(x|y|z)", component).group(0)
-            assert num <= self.nspins
-            assert num not in elements
+            if num > self.nspins:
+                raise ValueError(
+                    f"{err_preamble}Spin {num} does not exist for basis of "
+                    f"{self.nspins} spins."
+                )
+            if num in elements:
+                raise ValueError(
+                    f"{err_preamble}Spin {num} is repeated."
+                )
             elements[num] = coord
 
+        operator = Operator(np.array([[1]]))
         for i in range(1, self.nspins + 1):
-            if i == 1:
-                if i in elements:
-                    coord = elements[i]
-                    operator = self._basis_operators[coord]
-                else:
-                    operator = self._basis_operators["e"]
+            if i in elements:
+                coord = elements[i]
+                operator = operator.kroenecker(self.__dict__[f"_I{coord}"])
             else:
-                if i in elements:
-                    coord = elements[i]
-                    operator = operator.kroenecker(self._basis_operators[coord])
-                else:
-                    operator = operator.kroenecker(self._basis_operators["e"])
-            print(operator)
+                operator = operator.kroenecker(self._E)
 
         return 2 ** (self.nspins - 1) * operator

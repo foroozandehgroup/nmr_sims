@@ -1,7 +1,7 @@
 # test.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 10 Jan 2022 17:53:23 GMT
+# Last Edited: Tue 11 Jan 2022 17:24:31 GMT
 
 import pytest
 import numpy as np
@@ -282,8 +282,8 @@ class TestSpinSystem:
         with pytest.raises(ValueError) as exc_info:
             SpinSystem(spins)
         assert (
-            "\"shift\" and \"couplings\". This is not satisfied by spin 1." in
-            str(exc_info.value)
+            "\"shift\" and (optional) \"couplings\". This is not satisfied by spin 1."
+            in str(exc_info.value)
         )
 
     def test_invalid_shift(self):
@@ -323,6 +323,13 @@ class TestSpinSystem:
         assert "between spins 1 and 2: 40.0 and 20.0." in str(exc_info.value)
 
     def test_init(self):
+        # Case without coupling specified
+        spins = {1: {"shift": 1000}}
+        spin_system = SpinSystem(spins)
+        assert np.array_equal(spin_system.shifts, np.array([1000]))
+        assert np.array_equal(spin_system.couplings, np.array([[0]]))
+        assert spin_system.get("1x") == X_HALF
+
         spins = self.get_spins()
         spin_system = SpinSystem(spins)
         assert spin_system.nspins == 2

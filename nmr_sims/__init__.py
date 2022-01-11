@@ -1,7 +1,7 @@
 # __init__.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 10 Jan 2022 18:02:28 GMT
+# Last Edited: Tue 11 Jan 2022 17:25:24 GMT
 
 from __future__ import annotations
 from pathlib import Path
@@ -250,7 +250,7 @@ class CartesianBasis:
 
 class SpinSystem(CartesianBasis):
     # TODO Assuming spin-1/2 at the moment.
-    def __init__(self, spins: dict) -> None:
+    def __init__(self, spins: dict, nucleus: str = "1H") -> None:
         self.shifts, self.couplings = self._process_spins_dict(spins)
         super().__init__(I=0.5, nspins=self.shifts.size)
 
@@ -275,10 +275,10 @@ class SpinSystem(CartesianBasis):
         couplings = np.zeros((nspins, nspins))
 
         for i, spin in spins.items():
-            if not all([k in spin for k in ("shift", "couplings")]):
+            if "shift" not in spin.keys():
                 raise ValueError(
                     "Each value in `spins` should be a dict with the keys "
-                    "\"shift\" and \"couplings\". "
+                    "\"shift\" and (optional) \"couplings\". "
                     f"This is not satisfied by spin {i}."
                 )
 
@@ -290,30 +290,31 @@ class SpinSystem(CartesianBasis):
 
             shifts[i - 1] = spin["shift"]
 
-            if not isinstance(spin["couplings"], dict):
-                raise TypeError(
-                    "\"couplings\" entries should be dicts. This is not satisfied by "
-                    f"spin {i}."
-                )
-
-            for j, coupling in spin["couplings"].items():
-                if not (isinstance(j, int) and (1 <= j <= nspins) and (j != i)):
-                    raise ValueError(
-                        f"Invalid key in couplings dict for spin {i}: {j}. Should "
-                        f"be and int greater than 0, no more than {nspins}, and not "
-                        f"{i}."
+            if "couplings" in spin.keys():
+                if not isinstance(spin["couplings"], dict):
+                    raise TypeError(
+                        "\"couplings\" entries should be dicts. This is not satisfied "
+                        f"by spin {i}."
                     )
 
-                current_value = couplings[i - 1, j - 1]
-                if float(current_value) != 0.:
-                    if coupling != current_value:
+                for j, coupling in spin["couplings"].items():
+                    if not (isinstance(j, int) and (1 <= j <= nspins) and (j != i)):
                         raise ValueError(
-                            f"Contradictory couplings given between spins {j} and "
-                            f"{i}: {float(coupling)} and {current_value}."
+                            f"Invalid key in couplings dict for spin {i}: {j}. "
+                            f"Should be and int greater than 0, no more than {nspins}, "
+                            f"and not {i}."
                         )
-                else:
-                    couplings[i - 1, j - 1] = coupling
-                    couplings[j - 1, i - 1] = coupling
+
+                    current_value = couplings[i - 1, j - 1]
+                    if float(current_value) != 0.:
+                        if coupling != current_value:
+                            raise ValueError(
+                                f"Contradictory couplings given between spins {j} and "
+                                f"{i}: {float(coupling)} and {current_value}."
+                            )
+                    else:
+                        couplings[i - 1, j - 1] = coupling
+                        couplings[j - 1, i - 1] = coupling
 
         return shifts, couplings
 

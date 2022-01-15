@@ -1,100 +1,103 @@
 # pa.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Tue 21 Dec 2021 12:32:14 GMT
+# Last Edited: Sat 15 Jan 2022 16:45:35 GMT
 
-from typing import Dict
 import numpy as np
 from numpy import fft
-from nmr_sims import Operator
-from nmr_sims.experiments import get_spin_system
+from nmr_sims.experimental import Experimental
+from nmr_sims.spin_system import SpinSystem
 
 
-def pa(
-    spin_system: Dict[int, Dict[str, float]],
-    sw: float,
-    tp: int = 2048,
-):
+def pa(spin_system: SpinSystem, experimental: Experimental) -> np.ndarray:
+    spin_system.set_conditions(experimental)
+    channel = experimental.channels[1]
 
-    spin_system = get_spin_system(spin_system)
-    zero_op = Operator(0.5, spin_system.nspins)
-    Ix = sum(
-        [spin_system.get(f"{i}x") for i in range(1, spin_system.nspins + 1)],
-        start=zero_op
-    )
-    Iy = sum(
-        [spin_system.get(f"{i}y") for i in range(1, spin_system.nspins + 1)],
-        start=zero_op
-    )
-    Iz = sum(
-        [spin_system.get(f"{i}z") for i in range(1, spin_system.nspins + 1)],
-        start=zero_op
-    )
-    Iminus = Ix - 1j * Iy
+    # Hamiltonian for the system
+    hamiltonian = spin_system.hamiltonian
 
-    H = spin_system.free_hamiltonian
-    dt = 1 / sw
-    evol = H.rotation_operator(dt)
-    pi_over_2_x = -Iy.rotation_operator(np.pi / 2)
+    # Hamiltonian propagator
+    dt = 1 / channel.sweep_width
+    evol = hamiltonian.rotation_operator(dt)
 
-    # Run the experiment
-    fid = np.zeros(tp, dtype="complex")
-    # Eqm. magnetisation
-    rho = Iz
-    # π/2 x-pulse
-    rho = pi_over_2_x @ rho @ pi_over_2_x.adjoint
-    for i in range(tp):
-        # Free evolution (first half of t1)
+    # Detection operator
+    Iminus = spin_system.Ix - 1j * spin_system.Iy
+
+    # pi / 2 pulse propagator
+    pulse = spin_system.pulse(phase=np.pi / 2, angle=np.pi / 2)
+
+    # Set density operator to be in equilibrium state
+    rho = spin_system.equilibrium_operator
+
+    fid = np.zeros(channel.points, dtype="complex")
+
+    # --- Run the experiment ---
+    # Apply pulse
+    rho = rho.propagate(pulse)
+    for i in range(channel.points):
         fid[i] = rho.expectation(Iminus)
-        rho = evol @ rho @ evol.adjoint
+        rho = rho.propagate(evol)
 
-    window = np.exp(np.linspace(0, 8, tp))
+    return fid
+
+
+if __name__ == "__main__":
+    import matplotlib as mpl
+    import matplotlib.pyplot as plt
+    mpl.use("tkAgg")
+
+    # Efectively an AX3 spin system.
+    spin_system = SpinSystem(
+        {
+            1: {
+                "shift": 2,
+                "couplings": {
+                    2: 40.,
+                    3: 40.,
+                    4: 40.,
+                }
+            },
+            2: {
+                "shift": 8,
+            },
+            3: {
+                "shift": 8,
+            },
+            4: {
+                "shift": 8,
+            },
+        }
+    )
+    channel = {
+        1: {
+            "nucleus": "1H",
+            "sweep_width": "10ppm",
+            "offset": "5ppm",
+            "points": 8192
+        },
+    }
+    experimental = Experimental(channel, "298K", "500MHz")
+
+    fid = pa(spin_system, experimental)
+
+    channel = experimental.channels[1]
+    window = np.exp(np.linspace(0, 8, channel.points))
     fid /= window
     spectrum = fft.fftshift(
         fft.fft(
             fid,
-            4 * tp,
+            4 * fid.size,
         ),
     )
 
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    mpl.use("tkAgg")
+    shifts = np.linspace(
+        -channel.sweep_width / 2 + channel.offset,
+        channel.sweep_width / 2 + channel.offset,
+        spectrum.size
+    ) / (1e-6 * channel.nucleus.gamma * experimental.field / (2 * np.pi))
+
     fig, axs = plt.subplots(nrows=2, ncols=1)
-    print(axs)
     axs[0].plot(fid)
-    axs[1].plot(spectrum)
+    axs[1].plot(shifts, spectrum)
+    axs[1].set_xlim(reversed(axs[1].get_xlim()))
     plt.show()
-
-
-if __name__ == "__main__":
-    spin_system = {
-        1: {
-            "shift": 1000.,
-            "couplings": {
-                2: 40.,
-                3: 40.,
-                4: 40.,
-            }
-        },
-        2: {
-            "shift": -500.,
-            "couplings": {
-                1: 40.
-            }
-        },
-        3: {
-            "shift": -500.,
-            "couplings": {
-                1: 40.
-            }
-        },
-        4: {
-            "shift": -500.,
-            "couplings": {
-                1: 40.
-            }
-        },
-    }
-
-    pa(spin_system, 5000, 2048)

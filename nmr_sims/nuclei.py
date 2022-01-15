@@ -1,7 +1,7 @@
 # nuclei.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Tue 11 Jan 2022 17:36:23 GMT
+# Last Edited: Tue 11 Jan 2022 17:47:50 GMT
 
 from dataclasses import dataclass
 
@@ -14,6 +14,10 @@ class Nucleus:
 
     def __str__(self):
         return self.name
+
+    @property
+    def spin(self) -> float:
+        return round((self.multiplicity - 1) / 2, 1)
 
 
 # All from NMR Enc. 1996

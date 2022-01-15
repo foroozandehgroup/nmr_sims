@@ -1,7 +1,7 @@
 # _operators.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Thu 13 Jan 2022 18:05:52 GMT
+# Last Edited: Sat 15 Jan 2022 20:07:05 GMT
 
 from __future__ import annotations
 import re
@@ -236,24 +236,27 @@ class CartesianBasis:
 
         full_regex = r"^(\d+(x|y|z))+$"
         component_regex = r"\d+(?:x|y|z)"
-        if not re.match(full_regex, operator):
+        if re.match(full_regex, operator):
+            elements = {}
+            for component in re.findall(component_regex, operator):
+                num = int(re.search(r"\d+", component).group(0))
+                coord = re.search(r"(x|y|z)", component).group(0)
+                if num > self.nspins:
+                    raise ValueError(
+                        f"{err_preamble}Spin {num} does not exist for basis of "
+                        f"{self.nspins} spins."
+                    )
+                if num in elements:
+                    raise ValueError(
+                        f"{err_preamble}Spin {num} is repeated."
+                    )
+                elements[num] = coord
+        elif operator == "e":
+            elements = {}
+        else:
             raise ValueError(
                 f"{err_preamble}Should satisfy the regex {full_regex}"
             )
-        elements = {}
-        for component in re.findall(component_regex, operator):
-            num = int(re.search(r"\d+", component).group(0))
-            coord = re.search(r"(x|y|z)", component).group(0)
-            if num > self.nspins:
-                raise ValueError(
-                    f"{err_preamble}Spin {num} does not exist for basis of "
-                    f"{self.nspins} spins."
-                )
-            if num in elements:
-                raise ValueError(
-                    f"{err_preamble}Spin {num} is repeated."
-                )
-            elements[num] = coord
 
         operator = Operator(np.array([[1]]))
         for i in range(1, self.nspins + 1):

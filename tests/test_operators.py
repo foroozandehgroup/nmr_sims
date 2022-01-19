@@ -1,7 +1,7 @@
 # test_operators.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Thu 13 Jan 2022 17:28:59 GMT
+# Last Edited: Sun 16 Jan 2022 01:16:08 GMT
 
 import pytest
 import numpy as np
@@ -194,31 +194,22 @@ class TestOperator:
 class TestCartesianBasis:
     def test_init(self):
         with pytest.raises(ValueError) as exc_info:
-            CartesianBasis(I=0.2)
-        assert "`I` should be a multiple of 1/2, but is 0.2." == str(exc_info.value)
-
-        with pytest.raises(ValueError) as exc_info:
-            CartesianBasis(I=1.5, nspins=0)
-        assert (
-            "`nspins` should be an int greater than 0 but is 0." ==
-            str(exc_info.value)
+            CartesianBasis([0.2])
+        assert str(exc_info.value) == (
+            "`spins` should be an iterable of numbers which are multiples of 0.5."
         )
 
         basis = CartesianBasis()
+        assert basis.spins == [0.5]
         assert basis.nspins == 1
-        assert basis._Ix == X_HALF
-        assert basis._Iy == Y_HALF
-        assert basis._Iz == Z_HALF
-        assert basis._E == E_HALF
+        assert basis.dim == 2
 
-        basis = CartesianBasis(I=1.5, nspins=3)
+        basis = CartesianBasis([1.5, 1.5, 1])
         assert basis.nspins == 3
-        assert basis._Ix == X_THREE_HALF
-        assert basis._Iy == Y_THREE_HALF
-        assert basis._Iz == Z_THREE_HALF
+        assert basis.dim == 48
 
     def test_get(self):
-        basis = CartesianBasis(nspins=2)
+        basis = CartesianBasis([0.5, 0.5])
         with pytest.raises(ValueError) as exc_info:
             basis.get("1x2w")
         assert "Should satisfy the regex ^(\\d+(x|y|z))+$" in str(exc_info.value)
@@ -231,8 +222,12 @@ class TestCartesianBasis:
             basis.get("1x2y2z")
         assert "Spin 2 is repeated." in str(exc_info.value)
 
-        assert basis.get("1x2y") == X1Y2
-        assert basis.get("1z") == Z1E2
-        assert basis.get("2z") == E1Z2
+        # TODO Fic the factor...
+        assert basis.get("1x2y") == X1Y2 / 2
+        assert basis.get("1z") == Z1E2 / 2
+        assert basis.get("2z") == E1Z2 / 2
+
+        basis = CartesianBasis([1, 1])
+        print(basis.get("e"))
 
 

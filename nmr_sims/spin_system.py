@@ -1,11 +1,10 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Thu 13 Jan 2022 18:07:23 GMT
+# Last Edited: Sun 16 Jan 2022 16:04:59 GMT
 
-from typing import Any, Iterable, Tuple, Union
+from typing import Iterable, Union
 import numpy as np
-from nmr_sims.experimental import Experimental
 from nmr_sims.nuclei import Nucleus
 from nmr_sims._operators import CartesianBasis, Operator
 from nmr_sims import _sanity
@@ -13,125 +12,118 @@ from nmr_sims import _sanity
 
 # Currently only applicable for homonuclear systems
 class SpinSystem(CartesianBasis):
+    boltzmann = 1.380649e-23
+    hbar = 1.054571817e-34
+
     def __init__(
-        self, spins: dict, nucleus: Union[str, Nucleus] = "1H",
+        self, spins: dict, default_nucleus: Union[Nucleus, str] = "1H",
+        field: Union[int, float, str] = "500MHz",
+        temperature: Union[int, float, str] = "298K",
     ) -> None:
-        self.nucleus = _sanity.process_nucleus(nucleus)
-        self.shifts, self.couplings = self._process_spins(spins)
-        super().__init__(I=self.nucleus.spin, nspins=self.shifts.size)
-        self.experimental = None
-        self._conditions_set = False
+        self.temperature = _sanity.process_temperature(temperature)
+        self.field = _sanity.process_field(field)
+        self.spin_dict = _sanity.process_spins(spins, default_nucleus)
+        super().__init__(
+            [(spin.nucleus.multiplicity - 1) / 2 for spin in self.spin_dict.values()]
+        )
+        if not all([I == 0.5 for I in self.spins]):
+            raise ValueError("Spin-1/2 nuclei are only supported currently!")
 
-    def edit_shift(self, spin: int, value: Union[int, float]) -> None:
-        self._check_valid_spin(spin)
-        if not isinstance(value, (int, float)):
-            raise TypeError("`value` should be a scalar value.")
-        self.shifts[spin - 1] = value
+    @property
+    def inverse_temperature(self):
+        return self.hbar / (self.boltzmann * self.temperature)
 
-    def edit_coupling(self, spin1: int, spin2: int, value: Union[int, float]) -> None:
-        self._check_valid_spin(spin1)
-        self._check_valid_spin(spin2)
-        if spin1 == spin2:
-            raise ValueError("`spin1` and `spin2` cannot match.")
+    @property
+    def boltzmann_factor(self) -> Iterable[float]:
+        return [
+            2 * np.pi * self.inverse_temperature * spin.nucleus.gamma * self.field
+            for spin in self.spin_dict.values()
+        ]
 
-        if not isinstance(value, (int, float)):
-            raise TypeError("`value` should be a scalar value.")
+    @property
+    def basic_frequencies(self) -> Iterable[float]:
+        return [
+            -spin.nucleus.gamma * self.field * (1 + (1e-6 * spin.shift))
+            for spin in self.spin_dict.values()
+        ]
 
-        self.couplings[spin1 - 1, spin2 - 1] = value
-        self.couplings[spin2 - 1, spin1 - 1] = value
+    @property
+    def rotframe_frequencies(self) -> Iterable[float]:
+        return [
+            -spin.nucleus.gamma * self.field * (1e-6 * spin.shift)
+            for spin in self.spin_dict.values()
+        ]
 
-    def set_conditions(self, experimental: Experimental) -> None:
-        self.experimental = experimental
-        self._conditions_set = True
-
-    def _check_conditions_set(self) -> None:
-        if not self._conditions_set:
-            raise ValueError("`set_conditions` must be applied.")
-
-    def pulse(self, phase: float = 0., angle: float = np.pi / 2) -> Operator:
-        operator = self.Ix * np.cos(phase) + self.Iy * np.sin(phase)
+    def pulse(
+        self, nucleus: str, phase: float = 0., angle: float = np.pi / 2
+    ) -> Operator:
+        operator = self.zero
+        for i, spin in self.spin_dict.items():
+            if spin.nucleus.name == nucleus:
+                operator += (
+                    np.cos(phase) * self.get(f"{i}x") +
+                    np.sin(phase) * self.get(f"{i}y")
+                )
         return operator.rotation_operator(angle)
 
     @property
-    def frequencies(self) -> Iterable[float]:
-        self._check_conditions_set()
-        channels = self.experimental.channels
-        channel = self.experimental.channels[len(channels)]
-        gamma = channel.nucleus.gamma / (2 * np.pi)
-        return 2 * np.pi * np.array([
-            ((1e-6 * gamma * self.experimental.field * shift) - channel.offset)
-            for shift in self.shifts
-        ])
-
-    @property
     def equilibrium_operator(self) -> Operator:
-        self._check_conditions_set()
-        B = self.experimental.boltzmann_factor[0]
-        return (1 / self.nspins) * (self.identity + (B * self.Iz))
+        return (1 / self.nspins) * (
+            self.identity + sum(
+                [b * self.get(f"{i}z") for i, b in
+                 enumerate(self.boltzmann_factor, start=1)],
+                start=self.zero,
+            )
+        )
 
-    @property
-    def hamiltonian(self) -> Operator:
-        self._check_conditions_set()
-        freqs = self.frequencies
-        couplings = self.couplings
+    def _get_frequency(self, label: int):
+        spin = self.spin_dict[label]
+        return -spin.nucleus.gamma * self.field * (1e-6 * spin.shift)
+
+    def _get_coupling(self, label1: int, label2: int) -> float:
+        label1, label2 = (min((label1, label2)), max((label1, label2)))
+        return self.spin_dict[label1].couplings[label2]
+
+    def hamiltonian(self, offsets: Union[dict, None] = None) -> Operator:
         H = self.zero
-        for i in range(self.nspins):
-            H += freqs[i] * self.get(f"{i + 1}z")
-            for j in range(i + 1, self.nspins):
-                H += np.pi * couplings[i, j] * (
-                    self.get(f"{i + 1}x{j + 1}x") +
-                    self.get(f"{i + 1}y{j + 1}y") +
-                    self.get(f"{i + 1}z{j + 1}z")
+        for i in range(1, self.nspins + 1):
+            H += self._get_frequency(i) * self.get(f"{i}z")
+            if i == self.nspins:
+                break
+            for j in range(i + 1, self.nspins + 1):
+                H += 2 * np.pi * self._get_coupling(i, j) * (
+                    self.get(f"{i}x{j}x") +
+                    self.get(f"{i}y{j}y") +
+                    self.get(f"{i}z{j}z")
+                )
+
+        if offsets is None:
+            pass
+        else:
+            for nuc, off in offsets.items():
+                H += 2 * np.pi * off * sum(
+                    [self.get(f"{i}z")
+                     for i, spin in self.spin_dict.items()
+                     if spin.nucleus.name == nuc],
+                    start=self.zero
                 )
 
         return H
 
-    @staticmethod
-    def _process_spins(spins: Any) -> Tuple[np.ndarray, np.ndarray]:
-        _sanity.check_dict_with_int_keys(spins, "spins", consecutive=True)
-        nspins = len(spins)
-        shifts = np.zeros(nspins)
-        couplings = np.zeros((nspins, nspins))
+    def _get_sum(self, coord: str, nucleus: str) -> Operator:
+        if nucleus is None:
+            labels = list(self.spin_dict.keys())
+        else:
+            labels = [i for i, spin in self.spin_dict.items()
+                      if spin.nucleus.name == nucleus]
 
-        for i, spin in spins.items():
-            if "shift" not in spin.keys():
-                raise ValueError(
-                    "Each value in `spins` should be a dict with the keys "
-                    "\"shift\" and (optional) \"couplings\". "
-                    f"This is not satisfied by spin {i}."
-                )
+        return sum([self.get(f"{i}{coord}") for i in labels], start=self.zero)
 
-            if not isinstance(spin["shift"], (int, float)):
-                raise TypeError(
-                    "\"shift\" entries should be scalar values. This is not "
-                    f"satisfied by spin {i}."
-                )
+    def Ix(self, nucleus: Union[str, None] = None) -> Operator:
+        return self._get_sum("x", nucleus)
 
-            shifts[i - 1] = spin["shift"]
+    def Iy(self, nucleus: Union[str, None] = None) -> Operator:
+        return self._get_sum("y", nucleus)
 
-            if "couplings" in spin.keys():
-                _sanity.check_dict_with_int_keys(
-                    spin["couplings"], f"spins[{i}][\"couplings\"]", max_=nspins,
-                    forbidden=[i],
-                )
-
-                for j, coupling in spin["couplings"].items():
-                    current_value = couplings[i - 1, j - 1]
-                    if float(current_value) != 0.:
-                        if coupling != current_value:
-                            raise ValueError(
-                                f"Contradictory couplings given between spins {j} and "
-                                f"{i}: {float(coupling)} and {current_value}."
-                            )
-                    else:
-                        couplings[i - 1, j - 1] = coupling
-                        couplings[j - 1, i - 1] = coupling
-
-        return shifts, couplings
-
-    def _check_valid_spin(self, spin: Any) -> None:
-        if not (isinstance(spin, int) and 1 <= spin <= self.nspins):
-            raise ValueError(
-                "`spin` should be an int greater than 0 and no more than "
-                f"{self.nspins}"
-            )
+    def Iz(self, nucleus: Union[str, None] = None) -> Operator:
+        return self._get_sum("z", nucleus)

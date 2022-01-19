@@ -1,11 +1,12 @@
 # _operators.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Sat 15 Jan 2022 20:07:05 GMT
+# Last Edited: Mon 17 Jan 2022 12:20:11 GMT
 
 from __future__ import annotations
+from functools import reduce
 import re
-from typing import Any, Union
+from typing import Any, Iterable, Union
 import numpy as np
 import numpy.linalg as nlinalg
 import scipy.linalg as slinalg
@@ -203,23 +204,17 @@ class Operator:
 
 
 class CartesianBasis:
-    def __init__(self, *, I: float = 0.5, nspins: int = 1) -> None:
-        if not (isinstance(I, (int, float)) and _sanity.is_multiple_of_one_half(I)):
-            raise ValueError(f"`I` should be a multiple of 1/2, but is {I}.")
-        if not (isinstance(nspins, int) and nspins > 0):
+    def __init__(self, spins: Iterable[float] = [0.5]) -> None:
+        if not _sanity.is_an_iterable_of_spins(spins):
             raise ValueError(
-                f"`nspins` should be an int greater than 0 but is {nspins}."
+                "`spins` should be an iterable of numbers which are multiples of 0.5."
             )
-        self._Ix = Operator.Ix(I)
-        self._Iy = Operator.Iy(I)
-        self._Iz = Operator.Iz(I)
-        self._E = Operator.E(I)
-        self.nspins = nspins
-        self.I = I
+        self.spins = [spin for spin in spins]
+        self.nspins = len(self.spins)
 
     @property
     def dim(self):
-        return int(2 * self.I + 1) ** self.nspins
+        return reduce((lambda x, y: x * y), [int(2 * I + 1) for I in self.spins])
 
     @property
     def zero(self) -> np.ndarray:
@@ -259,35 +254,18 @@ class CartesianBasis:
             )
 
         operator = Operator(np.array([[1]]))
-        for i in range(1, self.nspins + 1):
+        for i, I in enumerate(self.spins, start=1):
             if i in elements:
                 coord = elements[i]
-                operator = operator.kroenecker(self.__dict__[f"_I{coord}"])
+                match coord:
+                    case "x":
+                        operator = operator.kroenecker(Operator.Ix(I))
+                    case "y":
+                        operator = operator.kroenecker(Operator.Iy(I))
+                    case "z":
+                        operator = operator.kroenecker(Operator.Iz(I))
             else:
-                operator = operator.kroenecker(self._E)
+                operator = operator.kroenecker(Operator.E(I))
 
-        return 2 ** (self.nspins - 1) * operator
-
-    def _get_sum(self, coord: str) -> Operator:
-        attr = f"_I{coord}_sum"
-        if hasattr(self, attr):
-            return getattr(self, attr)
-        else:
-            sum_ = sum(
-                [self.get(f"{i}{coord}") for i in range(1, self.nspins + 1)],
-                start=self.zero
-            )
-            setattr(self, attr, sum_)
-            return sum_
-
-    @property
-    def Ix(self) -> Operator:
-        return self._get_sum("x")
-
-    @property
-    def Iy(self) -> Operator:
-        return self._get_sum("y")
-
-    @property
-    def Iz(self) -> Operator:
-        return self._get_sum("z")
+        # TODO: Multiplication factor!?
+        return (2 ** (self.nspins - 1)) * operator

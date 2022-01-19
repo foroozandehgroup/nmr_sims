@@ -8,20 +8,8 @@ from nmr_sims. experimental import Experimental
 
 def test_experimental():
     experimental = Experimental(
-        channels={
-            1: {
-                "nucleus": "1H",
-                "sweep_width": "10ppm",
-                "offset": "4ppm",
-                "points": 2048,
-            },
-            2: {
-                "nucleus": "13C",
-                "sweep_width": "250ppm",
-                "offset": "120ppm",
-                "points": 128
-            },
-        },
-        temperature="25C",
+        channels=["1H", "13C"],
+        sweep_widths=[10000, 100000],
         field="800MHz",
+        temperature="25C",
     )

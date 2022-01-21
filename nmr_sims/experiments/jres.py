@@ -34,7 +34,7 @@ def jres(spin_system: SpinSystem, parameters: Parameters) -> np.ndarray:
     evol2 = hamiltonian.rotation_operator(1 / sw[1])
 
     # Pulses
-    pi_over_2_x = spin_system.pulse(nucleus.name, phase=0, angle=np.pi / 2)
+    pi_over_2_x = spin_system.pulse(nucleus.name, phase=-np.pi / 2, angle=np.pi / 2)
     pi_x = spin_system.pulse(nucleus.name, phase=0, angle=np.pi)
 
     # Detection operator

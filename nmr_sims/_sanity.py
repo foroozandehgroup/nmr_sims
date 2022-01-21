@@ -172,7 +172,7 @@ def process_value(
 
     if not isinstance(value, str):
         raise ValueError(errmsg)
-    print(regex)
+
     match = re.match(regex, value, re.IGNORECASE)
     if match is None:
         raise ValueError(errmsg)

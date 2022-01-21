@@ -3,7 +3,6 @@
 # simon.hulse@chem.ox.ac.uk
 # Last Edited: Sat 15 Jan 2022 19:43:46 GMT
 
-import copy
 import numpy as np
 from numpy import fft
 from nmr_sims import _sanity
@@ -47,19 +46,18 @@ def jres(spin_system: SpinSystem, parameters: Parameters) -> np.ndarray:
         # Propagator for each half of the t1 period
         evol1 = hamiltonian.rotation_operator(i / (2 * sw[0]))
         # Set density matrix to Equilibrium operator
-        rho_t1 = spin_system.equilibrium_operator
+        rho = spin_system.equilibrium_operator
         # π/2 x-pulse
-        rho_t1 = rho_t1.propagate(pi_over_2_x)
+        rho = rho.propagate(pi_over_2_x)
         # Free evolution (first half of t1)
-        rho_t1 = rho_t1.propagate(evol1)
+        rho = rho.propagate(evol1)
         # π x-pulse
-        rho_t1 = rho_t1.propagate(pi_x)
+        rho = rho.propagate(pi_x)
         # Free evolution (second half of t1)
-        rho_t1 = rho_t1.propagate(evol1)
-        rho_t2 = copy.deepcopy(rho_t1)
+        rho = rho.propagate(evol1)
         for j in range(points[1]):
-            fid[i, j] = rho_t2.expectation(Iminus)
-            rho_t2 = rho_t2.propagate(evol2)
+            fid[i, j] = rho.expectation(Iminus)
+            rho = rho.propagate(evol2)
 
     fid *= np.outer(
         np.exp(np.linspace(0, -5, points[0])),
@@ -146,7 +144,6 @@ if __name__ == "__main__":
     tp, fid = result.fid()
     # Extract spectrum and chemical shifts
     shifts, spectrum = result.spectrum(zf_factor=4)
-    result = jres(spin_system, params)
 
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')

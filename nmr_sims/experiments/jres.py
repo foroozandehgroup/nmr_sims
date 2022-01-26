@@ -34,8 +34,10 @@ def jres(spin_system: SpinSystem, parameters: Parameters) -> np.ndarray:
     evol2 = hamiltonian.rotation_operator(1 / sw[1])
 
     # Pulses
-    pi_over_2_x = spin_system.pulse(nucleus.name, phase=-np.pi / 2, angle=np.pi / 2)
-    pi_x = spin_system.pulse(nucleus.name, phase=0, angle=np.pi)
+    phase1 = np.pi / 2
+    phase2 = phase1 + (np.pi / 2)
+    pi_over_2 = spin_system.pulse(nucleus.name, phase=phase1, angle=np.pi / 2)
+    pi = spin_system.pulse(nucleus.name, phase=phase2, angle=np.pi)
 
     # Detection operator
     Iminus = spin_system.Ix(nucleus.name) - 1j * spin_system.Iy(nucleus.name)
@@ -47,12 +49,12 @@ def jres(spin_system: SpinSystem, parameters: Parameters) -> np.ndarray:
         evol1 = hamiltonian.rotation_operator(i / (2 * sw[0]))
         # Set density matrix to Equilibrium operator
         rho = spin_system.equilibrium_operator
-        # π/2 x-pulse
-        rho = rho.propagate(pi_over_2_x)
+        # π/2 pulse
+        rho = rho.propagate(pi_over_2)
         # Free evolution (first half of t1)
         rho = rho.propagate(evol1)
-        # π x-pulse
-        rho = rho.propagate(pi_x)
+        # π pulse
+        rho = rho.propagate(pi)
         # Free evolution (second half of t1)
         rho = rho.propagate(evol1)
         for j in range(points[1]):
@@ -97,7 +99,10 @@ class JresResult(Result):
         return tp, fid
 
     def spectrum(self, zf_factor: int = 1):
-        sw, off, pts = self.sw(unit="ppm"), self.offset(unit="ppm")[1], self.pts
+        off, pts = self.offset(unit="ppm")[1], self.pts
+        sw = []
+        sw.append(self.sw(unit="hz")[0])
+        sw.append(self.sw(unit="ppm")[1])
         shifts = np.meshgrid(
             np.linspace((sw[0] / 2), -(sw[0] / 2), pts[0] * zf_factor),
             np.linspace((sw[1] / 2) + off, -(sw[1] / 2) + off, pts[1] * zf_factor),

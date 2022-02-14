@@ -1,3 +1,5 @@
+![PyPI badge](https://badge.fury.io/py/nmr-sims.svg)
+
 # nmr\_sims
 
 NMR simulations in Python by Simon.
@@ -8,13 +10,6 @@ Everything uses the Zeeman basis in Hilbert space, so nothing too fancy is possi
 
 Currently have pulse-acquire and 2DJ code available.
 
-If interested in checking it out, take a look at (and run)
-`nmr_sims/experiments/pa.py` and `nmr_sims/experiments/jres.py` for a couple of
-examples.
+Install with `$pip install nmr-sims`
 
-You can also run `$python -m nmr_sims pa` or `$python -m nmr_sims jres` from a
-terminal.
-
-To install: Clone this repo, activate a venv, run `pip install -e .` when inside
-the repo's root directory. You might need to manually install numpy, scipy
-and matplotlib to the venv too, I haven't checked whether this is done automatically.
+To get started, take a look at (and run) run `$python -m nmr_sims pa` or `$python -m nmr_sims jres`.

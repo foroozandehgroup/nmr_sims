@@ -1,18 +1,18 @@
 # __init__.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Thu 13 Jan 2022 15:32:02 GMT
+# Last Edited: Mon 14 Feb 2022 11:44:04 GMT
 
 from dataclasses import dataclass
-from typing import Iterable, Union
+from typing import Dict, Iterable, Union
 import numpy as np
 from nmr_sims.spin_system import SpinSystem
 
 
 @dataclass
 class Result:
-    _fid: dict[str, np.ndarray]
-    _dim_info: Iterable[dict]
+    _fid: Dict[str, np.ndarray]
+    _dim_info: Iterable[Dict]
     _field: float
 
     @property
@@ -21,7 +21,7 @@ class Result:
 
     def fid(
         self, component: Union[str, None] = None
-    ) -> Union[np.ndarray, dict[str, np.ndarray]]:
+    ) -> Union[np.ndarray, Dict[str, np.ndarray]]:
         raise AttributeError("`fid` has not been defined for this class!")
 
     def spectrum(self, *args, **kwargs):

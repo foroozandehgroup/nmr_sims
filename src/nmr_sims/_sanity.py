@@ -1,11 +1,11 @@
 # _sanity.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Sun 16 Jan 2022 15:56:59 GMT
+# Last Edited: Mon 14 Feb 2022 11:41:42 GMT
 
 from dataclasses import dataclass
 import re
-from typing import Any, Iterable, Tuple, Union
+from typing import Any, Dict, Iterable, Tuple, Union
 import numpy as np
 from nmr_sims import nuclei
 
@@ -62,7 +62,7 @@ def check_dict_with_int_keys(
         raise ValueError(errmsg)
 
 
-def process_spins(spins: Any, default_nucleus: Any) -> Iterable[dict]:
+def process_spins(spins: Any, default_nucleus: Any) -> Iterable[Dict]:
     check_dict_with_int_keys(spins, "spins", consecutive=True)
     nspins = len(spins)
     spin_dict = {}
@@ -235,4 +235,4 @@ def process_points(points: Any) -> int:
 class Spin:
     nucleus: nuclei.Nucleus
     shift: float
-    couplings: dict[int, float]
+    couplings: Dict[int, float]

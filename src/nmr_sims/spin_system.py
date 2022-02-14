@@ -1,7 +1,7 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Sun 16 Jan 2022 16:04:59 GMT
+# Last Edited: Mon 14 Feb 2022 11:47:29 GMT
 
 from typing import Iterable, Union
 import numpy as np
@@ -72,7 +72,7 @@ class SpinSystem(CartesianBasis):
             self.identity + sum(
                 [b * self.get(f"{i}z") for i, b in
                  enumerate(self.boltzmann_factor, start=1)],
-                start=self.zero,
+                self.zero,
             )
         )
 
@@ -105,7 +105,7 @@ class SpinSystem(CartesianBasis):
                     [self.get(f"{i}z")
                      for i, spin in self.spin_dict.items()
                      if spin.nucleus.name == nuc],
-                    start=self.zero
+                    self.zero
                 )
 
         return H
@@ -117,7 +117,7 @@ class SpinSystem(CartesianBasis):
             labels = [i for i, spin in self.spin_dict.items()
                       if spin.nucleus.name == nucleus]
 
-        return sum([self.get(f"{i}{coord}") for i in labels], start=self.zero)
+        return sum([self.get(f"{i}{coord}") for i in labels], self.zero)
 
     def Ix(self, nucleus: Union[str, None] = None) -> Operator:
         return self._get_sum("x", nucleus)

@@ -1,7 +1,7 @@
 # _operators.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 17 Jan 2022 12:20:11 GMT
+# Last Edited: Mon 14 Feb 2022 11:42:46 GMT
 
 from __future__ import annotations
 from functools import reduce
@@ -257,13 +257,12 @@ class CartesianBasis:
         for i, I in enumerate(self.spins, start=1):
             if i in elements:
                 coord = elements[i]
-                match coord:
-                    case "x":
-                        operator = operator.kroenecker(Operator.Ix(I))
-                    case "y":
-                        operator = operator.kroenecker(Operator.Iy(I))
-                    case "z":
-                        operator = operator.kroenecker(Operator.Iz(I))
+                if coord == 'x':
+                    operator = operator.kroenecker(Operator.Ix(I))
+                if coord == "y":
+                    operator = operator.kroenecker(Operator.Iy(I))
+                if coord == "z":
+                    operator = operator.kroenecker(Operator.Iz(I))
             else:
                 operator = operator.kroenecker(Operator.E(I))
 

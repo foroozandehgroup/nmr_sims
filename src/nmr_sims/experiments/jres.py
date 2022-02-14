@@ -1,52 +1,60 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Sat 15 Jan 2022 19:43:46 GMT
+# Last Edited: Mon 14 Feb 2022 17:05:03 GMT
 
+from typing import Tuple, Union
 import numpy as np
 from numpy import fft
-from nmr_sims import _sanity
-from nmr_sims.experimental import Parameters
+from nmr_sims.nuclei import Nucleus
 from nmr_sims.spin_system import SpinSystem
-from nmr_sims.experiments import Result, SAMPLE_SPIN_SYSTEM
+from nmr_sims.experiments import _process_params, Result, SAMPLE_SPIN_SYSTEM
 
 
-def jres(spin_system: SpinSystem, parameters: Parameters) -> np.ndarray:
-    nucleus, sw, offset, points = _process_params(parameters, spin_system.field)
-
-    nuc_name = u''.join(
-        dict(zip(u"0123456789", u"⁰¹²³⁴⁵⁶⁷⁸⁹")).get(c, c) for c in nucleus.name
+def jres(
+    spin_system: SpinSystem,
+    points: Tuple[int, int],
+    sweep_widths: Tuple[Union[str, float, int], Union[str, float, int]],
+    offset: Tuple[Union[str, float, int]] = [0.0],
+    channel: Tuple[Union[str, Nucleus]] = ["1H"],
+) -> np.ndarray:
+    points, sweep_widths, offset, channel = _process_params(
+        2, 1, [0, 0], points, sweep_widths, offset, channel, spin_system.field,
+    )
+    offset, channel = offset[0], channel[0]
+    channel_name = u''.join(
+        dict(zip(u"0123456789", u"⁰¹²³⁴⁵⁶⁷⁸⁹")).get(c, c) for c in channel.name
     )
 
     print(
-        f"Simulating {nuc_name} 2DJ experiment.\n"
+        f"Simulating {channel_name} 2DJ experiment.\n"
         f"Temperature: {spin_system.temperature}K\n"
         f"Field Strength: {spin_system.field}T\n"
-        f"Sweep width: {sw[0]}Hz (F1), {sw[1]}Hz (F2)\n"
+        f"Sweep width: {sweep_widths[0]}Hz (F1), {sweep_widths[1]}Hz (F2)\n"
         f"Transmitter offset: {offset}Hz\n"
         f"Points sampled: {points[0]} (F1), {points[1]} (F2)\n"
     )
 
     # Hamiltonian for the system
-    hamiltonian = spin_system.hamiltonian(offsets={nucleus.name: offset})
+    hamiltonian = spin_system.hamiltonian(offsets={channel.name: offset})
 
     # Hamiltonian propagator for t2
-    evol2 = hamiltonian.rotation_operator(1 / sw[1])
+    evol2 = hamiltonian.rotation_operator(1 / sweep_widths[1])
 
     # Pulses
     phase1 = np.pi / 2
     phase2 = phase1 + (np.pi / 2)
-    pi_over_2 = spin_system.pulse(nucleus.name, phase=phase1, angle=np.pi / 2)
-    pi = spin_system.pulse(nucleus.name, phase=phase2, angle=np.pi)
+    pi_over_2 = spin_system.pulse(channel.name, phase=phase1, angle=np.pi / 2)
+    pi = spin_system.pulse(channel.name, phase=phase2, angle=np.pi)
 
     # Detection operator
-    Iminus = spin_system.Ix(nucleus.name) - 1j * spin_system.Iy(nucleus.name)
+    Iminus = spin_system.Ix(channel.name) - 1j * spin_system.Iy(channel.name)
 
     fid = np.zeros((points[0], points[1]), dtype="complex")
 
     for i in range(points[0]):
         # Propagator for each half of the t1 period
-        evol1 = hamiltonian.rotation_operator(i / (2 * sw[0]))
+        evol1 = hamiltonian.rotation_operator(i / (2 * sweep_widths[0]))
         # Set density matrix to Equilibrium operator
         rho = spin_system.equilibrium_operator
         # π/2 pulse
@@ -67,22 +75,11 @@ def jres(spin_system: SpinSystem, parameters: Parameters) -> np.ndarray:
     )
 
     dim_info = [
-        {"nuc": nucleus, "sw": sw[0], "off": 0., "pts": points[0]},
-        {"nuc": nucleus, "sw": sw[1], "off": offset, "pts": points[1]},
+        {"nuc": channel, "sw": sweep_widths[0], "off": 0., "pts": points[0]},
+        {"nuc": channel, "sw": sweep_widths[1], "off": offset, "pts": points[1]},
     ]
 
-    return JresResult({"fid": fid}, dim_info, spin_system.field)
-
-
-def _process_params(params: Parameters, field: float):
-    nucleus = _sanity.process_nucleus(params.channels[0], None)
-    sw = [
-        _sanity.process_sweep_width(sw, nucleus, field)
-        for sw in params.sweep_widths[:2]
-    ]
-    offset = _sanity.process_offset(params.offsets[0], nucleus, field)
-    points = params.points[:2]
-    return nucleus, sw, offset, points
+    return JresResult({"fid": fid}, dim_info, spin_system)
 
 
 class JresResult(Result):
@@ -135,18 +132,19 @@ if __name__ == "__main__":
     # AX3 1H spin system with A @ 2ppm and X @ 7ppm.
     # Field of 500MHz
     spin_system = SAMPLE_SPIN_SYSTEM
+
     # Experiment parameters
-    params = Parameters(
-        channels=["1H"],
-        sweep_widths=["100Hz", "10ppm"],
-        points=[64, 256],
-        offsets=["5ppm"],
-    )
+    channel = ["1H"]
+    sweep_widths = ["100Hz", "10ppm"]
+    points = [64, 256]
+    offset = ["5ppm"]
 
     # Simulate the experiment
-    result = jres(spin_system, params)
+    result = jres(spin_system, points, sweep_widths, offset, channel)
+
     # Extract FID and timepoints
     tp, fid = result.fid()
+
     # Extract spectrum and chemical shifts
     shifts, spectrum = result.spectrum(zf_factor=4)
 

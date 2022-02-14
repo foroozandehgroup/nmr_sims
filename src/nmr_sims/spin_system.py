@@ -1,7 +1,7 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 14 Feb 2022 11:47:29 GMT
+# Last Edited: Mon 14 Feb 2022 15:49:31 GMT
 
 from typing import Iterable, Union
 import numpy as np

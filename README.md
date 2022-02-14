@@ -2,7 +2,7 @@
 
 # nmr\_sims
 
-NMR simulations in Python by Simon.
+NMR simulations in Python.
 
 Some rather simple simulations of basic NMR pulse sequences.
 
@@ -12,4 +12,4 @@ Currently have pulse-acquire and 2DJ code available.
 
 Install with `$pip install nmr-sims`
 
-To get started, take a look at (and run) run `$python -m nmr_sims pa` or `$python -m nmr_sims jres`.
+To get started, take a look at (and run) `$python -m nmr_sims pa` or `$python -m nmr_sims jres`.

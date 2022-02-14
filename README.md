@@ -1,4 +1,4 @@
-![PyPI badge](https://badge.fury.io/py/nmr-sims.svg)
+[![PyPI badge](https://badge.fury.io/py/nmr-sims.svg)](https://pypi.org/project/nmr-sims)
 
 # nmr\_sims
 

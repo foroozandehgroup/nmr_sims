@@ -20,4 +20,4 @@ This version provides support for:
 
 ## 0.0.2
 
-`nmr\_sims` is now functional on Python versions 3.7 and above. Other than that, its the same as `0.0.1`.
+`nmr_sims` is now functional on Python versions 3.7 and above. Other than that, its the same as `0.0.1`.

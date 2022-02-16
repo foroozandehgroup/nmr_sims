@@ -1,7 +1,7 @@
 # _operators.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 14 Feb 2022 11:42:46 GMT
+# Last Edited: Tue 15 Feb 2022 10:31:09 GMT
 
 from __future__ import annotations
 from functools import reduce

@@ -1,14 +1,14 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 14 Feb 2022 17:05:03 GMT
+# Last Edited: Wed 16 Feb 2022 11:04:28 GMT
 
 from typing import Tuple, Union
 import numpy as np
 from numpy import fft
 from nmr_sims.nuclei import Nucleus
 from nmr_sims.spin_system import SpinSystem
-from nmr_sims.experiments import _process_params, Result, SAMPLE_SPIN_SYSTEM
+from nmr_sims.experiments import process_params, Result, SAMPLE_SPIN_SYSTEM
 
 
 def jres(
@@ -18,7 +18,7 @@ def jres(
     offset: Tuple[Union[str, float, int]] = [0.0],
     channel: Tuple[Union[str, Nucleus]] = ["1H"],
 ) -> np.ndarray:
-    points, sweep_widths, offset, channel = _process_params(
+    points, sweep_widths, offset, channel = process_params(
         2, 1, [0, 0], points, sweep_widths, offset, channel, spin_system.field,
     )
     offset, channel = offset[0], channel[0]

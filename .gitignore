@@ -5,3 +5,8 @@ build/
 dist/
 .eggs/
 **/*.swp
+docs/_build
+docs/_static
+docs/_templates
+docs/Makefile
+docs/make.bat

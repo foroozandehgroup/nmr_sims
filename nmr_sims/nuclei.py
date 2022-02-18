@@ -1,7 +1,7 @@
 # nuclei.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Wed 16 Feb 2022 10:59:23 GMT
+# Last Edited: Wed 16 Feb 2022 21:58:26 GMT
 
 r"""The module enables specification of nuclei for use in generating spin systems
 (see :py:mod:`nmr_sims.spin_system`). A general :py:class:`Nucleus` object allows
@@ -20,9 +20,9 @@ class Nucleus:
         ----------
 
         name
-            The name of the nucleus. This can be anything, but by convention it is
-            probably a good idea to use a ``str`` of the form ``"<mass><element>"``,
-            such as ``"1H"``, ``"13C"``, etc.
+            The name of the nucleus. This can be anything, but really it should be
+            a ``str`` of the form ``"<mass><element>"``, such as ``"1H"``,
+            ``"13C"``, etc.
 
         gamma
             The gyromagnetic ratio of the nucleus in units of :math:`\mathrm{rad}
@@ -40,7 +40,7 @@ class Nucleus:
         self.__dict__.update(locals())
 
     def __str__(self):
-        return self.name
+        return self.ssname
 
     @property
     def spin(self) -> float:
@@ -49,6 +49,12 @@ class Nucleus:
         This is simply :math:`(M - 1) / 2`, where :math:`M` is the multiplicity.
         """
         return round((self.multiplicity - 1) / 2, 1)
+
+    @property
+    def ssname(self) -> str:
+        """Return the name of the nucleus with superscript numerals."""
+        transl = str.maketrans(dict(zip('1234567890', '¹²³⁴⁵⁶⁷⁸⁹⁰')))
+        return self.name.translate(transl)
 
 
 # All from NMR Enc. 1996

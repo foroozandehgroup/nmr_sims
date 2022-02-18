@@ -7,3 +7,4 @@ nmr_sims.experiments.pa
 
 .. autoclass:: nmr_sims.experiments.pa.PulseAcquireResult
    :inherited-members:
+   :special-members: __init__

@@ -1,7 +1,9 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Wed 16 Feb 2022 11:04:28 GMT
+# Last Edited: Wed 16 Feb 2022 16:33:24 GMT
+
+"""Module for simulating homonuclear J-Resolved (2DJ) experiments."""
 
 from typing import Tuple, Union
 import numpy as np
@@ -9,6 +11,50 @@ from numpy import fft
 from nmr_sims.nuclei import Nucleus
 from nmr_sims.spin_system import SpinSystem
 from nmr_sims.experiments import process_params, Result, SAMPLE_SPIN_SYSTEM
+
+
+class JresResult(Result):
+    """Result object for J-Resolved exeriment simulation."""
+
+    def __init__(self, fid, dim_info, field):
+        super().__init__(fid, dim_info, field)
+
+    def fid(self):
+        tp = np.meshgrid(
+            np.linspace(0, (self.pts[0] - 1) / self.sw()[0], self.pts[0]),
+            np.linspace(0, (self.pts[1] - 1) / self.sw()[1], self.pts[1]),
+            indexing="ij",
+        )
+        fid = self._fid["fid"]
+        return tp, fid
+
+    def spectrum(self, zf_factor: int = 1):
+        off, pts = self.offset(unit="ppm")[1], self.pts
+        sw = []
+        sw.append(self.sw(unit="hz")[0])
+        sw.append(self.sw(unit="ppm")[1])
+        shifts = np.meshgrid(
+            np.linspace((sw[0] / 2), -(sw[0] / 2), pts[0] * zf_factor),
+            np.linspace((sw[1] / 2) + off, -(sw[1] / 2) + off, pts[1] * zf_factor),
+            indexing="ij",
+        )
+        spectrum = np.abs(
+            np.flip(
+                fft.fftshift(
+                    fft.fft(
+                        fft.fft(
+                            self._fid["fid"],
+                            pts[0] * zf_factor,
+                            axis=0,
+                        ),
+                        pts[1] * zf_factor,
+                        axis=1,
+                    )
+                )
+            )
+        )
+
+        return shifts, spectrum
 
 
 def jres(
@@ -81,47 +127,6 @@ def jres(
 
     return JresResult({"fid": fid}, dim_info, spin_system)
 
-
-class JresResult(Result):
-    def __init__(self, fid, dim_info, field):
-        super().__init__(fid, dim_info, field)
-
-    def fid(self):
-        tp = np.meshgrid(
-            np.linspace(0, (self.pts[0] - 1) / self.sw()[0], self.pts[0]),
-            np.linspace(0, (self.pts[1] - 1) / self.sw()[1], self.pts[1]),
-            indexing="ij",
-        )
-        fid = self._fid["fid"]
-        return tp, fid
-
-    def spectrum(self, zf_factor: int = 1):
-        off, pts = self.offset(unit="ppm")[1], self.pts
-        sw = []
-        sw.append(self.sw(unit="hz")[0])
-        sw.append(self.sw(unit="ppm")[1])
-        shifts = np.meshgrid(
-            np.linspace((sw[0] / 2), -(sw[0] / 2), pts[0] * zf_factor),
-            np.linspace((sw[1] / 2) + off, -(sw[1] / 2) + off, pts[1] * zf_factor),
-            indexing="ij",
-        )
-        spectrum = np.abs(
-            np.flip(
-                fft.fftshift(
-                    fft.fft(
-                        fft.fft(
-                            self._fid["fid"],
-                            pts[0] * zf_factor,
-                            axis=0,
-                        ),
-                        pts[1] * zf_factor,
-                        axis=1,
-                    )
-                )
-            )
-        )
-
-        return shifts, spectrum
 
 
 if __name__ == "__main__":

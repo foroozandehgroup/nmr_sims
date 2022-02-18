@@ -1,6 +1,12 @@
 nmr_sims.experiments
 ^^^^^^^^^^^^^^^^^^^^
 
+.. toctree::
+   :maxdepth: 2
+
+   pa
+   jres
+
 .. automodule:: nmr_sims.experiments
 
 .. autoclass:: nmr_sims.experiments.Result

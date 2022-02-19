@@ -1,7 +1,7 @@
 # __init__.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Wed 16 Feb 2022 22:56:21 GMT
+# Last Edited: Fri 18 Feb 2022 17:20:29 GMT
 
 """This module contains a collection of pre-defined functions for simulating
 a number of solution-state NMR experiments. The current available experiments are:
@@ -46,45 +46,33 @@ class Simulation:
         self,
         spin_system: SpinSystem,
         points: Tuple[int],
-        sweep_width: Tuple[Union[str, float, int]],
-        offset: Tuple[Union[str, float, int]],
-        channel: Tuple[Union[str, Nucleus]],
+        sweep_widths: Tuple[Union[str, float, int]],
+        offsets: Tuple[Union[str, float, int]],
+        channels: Tuple[Union[str, Nucleus]],
     ) -> None:
+        """Initialise an instance of the class.
+
+        Parameters
+        ----------
+
+        spin_system
+            The spin system to perform the simulation on.
+
+        points
+            The number of points sampled in each dimension.
+
+        sweep_widths
+            The sweep widths in each dimension.
+
+        offsets
+            The transmitter offsets for each channel
+
+        channels
+            The nucelus targeted with each channel.
+        """
         self.__dict__.update(locals())
         self.process_params()
-
-    def log(self) -> None:
-        swstr = ", ".join(
-            [f"{x:.3f} (F{i})" for i, x in enumerate(self.sweep_width, start=1)]
-        )
-        channelstr = "\n".join(
-            [f"* Channel {i}: {nuc.ssname}, offset: {off:.3f} Hz"
-             for i, (nuc, off) in enumerate(self.channels, self.offsets)]
-        )
-        ptsstr = ", ".join(
-            [f"{x} (F{i})" for i, x in enumerate(self.points, start=1)]
-        )
-        msg = "Simulating {} experiment"
-        msg += f"\n{len(msg) * '-'}"
-        msg += (
-            f"* Temperature: {self.spin_system.temperature} K\n"
-            f"* Field Strength: {self.spin_system.field} T\n"
-            f"* Sweep width: {swstr}\n{channelstr}\n"
-            f"* Points sampled: {ptsstr}"
-        )
-        print(msg)
-
-    def simulate(self) -> Result:
-        """Simulate the NMR experiment."""
-        self.log()
-        fid = self.pulse_sequence()
-
-
-
-    def pulse_sequence(self) -> Result:
-        raise AttributeError(
-            "`pulse_sequence` needs to be defined in the class inheriting `Simulation`"
-        )
+        self._fid = None
 
     def process_params(self) -> None:
         """Process experiment simulation parameters.
@@ -112,12 +100,86 @@ class Simulation:
         ]
 
     def _check_right_length(self, name: str) -> None:
-        if name in ["points", "sweep_width"]:
+        if name in ["points", "sweep_widths"]:
             length = self.dimension_number
         elif name in ["channels", "offsets"]:
             length = self.channel_number
         if len(getattr(self, name)) != length:
             raise ValueError(f"`{name}` should be an iterable of length {length}.")
+
+    def log(self) -> None:
+        swstr = ", ".join(
+            [f"{x:.3f} (F{i})" for i, x in enumerate(self.sweep_widths, start=1)]
+        )
+        channelstr = "\n".join(
+            [f"* Channel {i}: {nuc.ssname}, offset: {off:.3f} Hz"
+             for i, (nuc, off) in enumerate(zip(self.channels, self.offsets), start=1)]
+        )
+        ptsstr = ", ".join(
+            [f"{x} (F{i})" for i, x in enumerate(self.points, start=1)]
+        )
+        msg = f"Simulating {self.name} experiment"
+        msg += f"\n{len(msg) * '-'}\n"
+        msg += (
+            f"* Temperature: {self.spin_system.temperature} K\n"
+            f"* Field Strength: {self.spin_system.field} T\n"
+            f"* Sweep width: {swstr}\n{channelstr}\n"
+            f"* Points sampled: {ptsstr}"
+        )
+        print(msg)
+
+    def simulate(self) -> Result:
+        """Simulate the NMR experiment."""
+        self.log()
+        self._fid = self._pulse_sequence()
+
+    def _pulse_sequence(self) -> np.ndarray:
+        """Definition of the pulse sequence."""
+        raise AttributeError(
+            "`pulse_sequence` needs to be defined!"
+        )
+
+    def check_if_fid_is_none(f: callable) -> callable:
+        def wrapper(*args, **kwargs):
+            # The first arg is the class instance.
+            if args[0].fid is None:
+                raise ValueError(
+                    "No FID is associated with the simulation. Perhaps you need to "
+                    "call `simulate()` before trying to access it?"
+                )
+            return f(*args, **kwargs)
+        return wrapper
+
+    @check_if_fid_is_none
+    def fid(self) -> np.ndarray:
+        """Return the timepoints sampled and the FID generated."""
+        if getattr(self, "_fetch_fid", None) is None:
+            raise AttributeError(
+                "BUG: `_fetch_fid` needs to be defined!"
+            )
+        else:
+            return self._fetch_fid()
+
+    @check_if_fid_is_none
+    def spectrum(self, zf_factor=1) -> Tuple[np.ndarray, np.ndarray]:
+        """Return the chemical shifts and spectrum.
+
+        Parameters
+        ----------
+
+        zf_factor
+            The ratio between the number of points in the final spectrum,
+            generated by zero-filling the FID, and the FID itself. ``1``
+            (default) means no zero-filling is applied.
+        """
+        if getattr(self, "_fetch_spectrum", None) is None:
+            raise AttributeError(
+                "BUG: `_fetch_sprectrum` needs to be defined!"
+            )
+        else:
+            return self._fetch_spectrum(zf_factor)
+
+
 
 class Result:
     """Object representing the resulting dataset derived from an experiment
@@ -167,25 +229,6 @@ class Result:
         """Return the number of dimensions in the data."""
         return len(self._dim_info)
 
-    def fid(
-        self, component: Union[str, None] = None
-    ) -> Union[np.ndarray, Dict[str, np.ndarray]]:
-        """Return the timepoints sampled and the FID generated."""
-        raise AttributeError("`fid` has not been defined for this class!")
-
-    def spectrum(self, *args, **kwargs):
-        """Return the chemical shifts and spectrum.
-
-        Parameters
-        ----------
-
-        zf_factor
-            The ratio between the number of points in the final spectrum,
-            generated by zero-filling the FID, and the FID itself. ``1``
-            (default) means no zero-filling is applied.
-        """
-        raise AttributeError("`sprectrum` has not been defined for this class!")
-
     @property
     def pts(self) -> Iterable[int]:
         """Return the number of points sampled in each dimension."""
@@ -227,9 +270,6 @@ class Result:
     def nuclei(self) -> Iterable[Nucleus]:
         """Return the targeted nucleus (channel) for each dimension."""
         return [di["nuc"] for di in self._dim_info]
-
-
-
 
 
 #: ``SAMPLE_SPIN_SYSTEM`` corresponds to a simple AX₃ spin system, with:

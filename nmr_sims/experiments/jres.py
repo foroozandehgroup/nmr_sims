@@ -1,7 +1,7 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Wed 16 Feb 2022 16:33:24 GMT
+# Last Edited: Fri 18 Feb 2022 16:05:25 GMT
 
 """Module for simulating homonuclear J-Resolved (2DJ) experiments."""
 
@@ -10,7 +10,7 @@ import numpy as np
 from numpy import fft
 from nmr_sims.nuclei import Nucleus
 from nmr_sims.spin_system import SpinSystem
-from nmr_sims.experiments import process_params, Result, SAMPLE_SPIN_SYSTEM
+from nmr_sims.experiments import Result, SAMPLE_SPIN_SYSTEM
 
 
 class JresResult(Result):

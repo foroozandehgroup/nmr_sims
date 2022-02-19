@@ -1,7 +1,7 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Tue 15 Feb 2022 17:17:41 GMT
+# Last Edited: Fri 18 Feb 2022 14:26:28 GMT
 
 r"""This module provides the :py:class:`SpinSystem` class, allowing specification
 of a specific spin system according to the nuclear idenitites, isotropic chemical
@@ -225,6 +225,7 @@ class SpinSystem(CartesianBasis):
                     np.cos(phase) * self.get(f"{i}x") +
                     np.sin(phase) * self.get(f"{i}y")
                 )
+                print(operator)
         return operator.rotation_operator(angle)
 
     @property
@@ -281,7 +282,7 @@ class SpinSystem(CartesianBasis):
             if i == self.nspins:
                 break
             for j, coupling in enumerate(couplings[i:, i - 1], start=i + 1):
-                H += 2 * np.pi * self._get_coupling(i, j) * (
+                H += 2 * np.pi * coupling * (
                     self.get(f"{i}x{j}x") +
                     self.get(f"{i}y{j}y") +
                     self.get(f"{i}z{j}z")

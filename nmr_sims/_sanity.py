@@ -1,7 +1,7 @@
 # _sanity.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 14 Feb 2022 11:41:42 GMT
+# Last Edited: Fri 18 Feb 2022 13:48:21 GMT
 
 from dataclasses import dataclass
 import re
@@ -120,23 +120,6 @@ def process_spins(spins: Any, default_nucleus: Any) -> Iterable[Dict]:
     return spin_dict
 
 
-def process_channel(
-    obj: Any, field: float
-) -> Tuple[nuclei.Nucleus, float, float, int]:
-    keys = ("nucleus", "sweep_width", "offset", "points")
-    if not isinstance(obj, dict) or any([k not in obj for k in keys]):
-        raise ValueError(
-            "Channels should be dicts with keys:\n" +
-            ", ".join([f"\"{k}\"" for k in keys])
-        )
-
-    nucleus = process_nucleus(obj["nucleus"], "nucleus")
-    sweep_width = process_sweep_width(obj["sweep_width"], nucleus, field)
-    offset = process_offset(obj["offset"], nucleus, field)
-    points = process_points(obj["points"])
-    return nucleus, sweep_width, offset, points
-
-
 def process_nucleus(nucleus: Any, varname: str) -> nuclei.Nucleus:
     if isinstance(nucleus, nuclei.Nucleus):
         return nucleus
@@ -209,7 +192,7 @@ def process_sweep_width(
     if unit is None or unit == "hz":
         return sweep_width
     elif unit == "ppm":
-        return sweep_width * field * nucleus.gamma / (2e6 * np.pi)
+        return sweep_width * field * np.abs(nucleus.gamma) / (2e6 * np.pi)
 
 
 def process_offset(

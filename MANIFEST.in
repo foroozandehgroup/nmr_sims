@@ -1,0 +1,4 @@
+graft nmr_sims
+include MANIFEST.in
+include LICENSE
+incluse README.md

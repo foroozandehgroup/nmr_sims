@@ -1,7 +1,7 @@
 # pa.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Wed 16 Feb 2022 17:20:27 GMT
+# Last Edited: Fri 18 Feb 2022 17:16:22 GMT
 
 """Module for simulating 1D pulse-acquire experiments."""
 
@@ -10,7 +10,7 @@ from typing import Tuple, Union
 import numpy as np
 from numpy import fft
 
-from nmr_sims.experiments import copydoc, process_params, Result, SAMPLE_SPIN_SYSTEM
+from nmr_sims.experiments import copydoc, Result, Simulation, SAMPLE_SPIN_SYSTEM
 from nmr_sims.nuclei import Nucleus
 from nmr_sims.spin_system import SpinSystem
 
@@ -22,98 +22,88 @@ class PulseAcquireResult(Result):
     def __init__(self, fid, dim_info, field):
         super().__init__(fid, dim_info, field)
 
-    @copydoc(Result.fid)
-    def fid(self) -> Tuple[np.ndarray, np.ndarray]:
-        tp = np.linspace(0, (self.pts[0] - 1) / self.sw()[0], self.pts[0])
-        fid = self._fid["fid"]
-        return tp, fid
 
-    @copydoc(Result.spectrum)
-    def spectrum(self, zf_factor: int = 1) -> Tuple[np.ndarray, np.ndarray]:
-        sw, off, pts = self.sw(unit="ppm")[0], self.offset(unit="ppm")[0], self.pts[0]
+
+
+class PulseAcquireSimulation(Simulation):
+    """Simulation class for Pulse-acquire experiment."""
+    dimesnion_number = 1
+    channel_number = 1
+    name = "Pulse-Acquire"
+
+    @copydoc(Simulation.__init__)
+    def __init__(
+        self,
+        spin_system: SpinSystem,
+        points: Tuple[int],
+        sweep_widths: Tuple[Union[str, float, int]],
+        offsets: Tuple[Union[str, float, int]] = [0.0],
+        channels: Tuple[Union[str, Nucleus]] = ["1H"],
+    ) -> None:
+        """
+        Notes
+        -----
+        The expected lengths of each argument are:
+
+        * points: 1
+        * sweep_widths: 1
+        * offsets: 1
+        * channels: 1
+        """
+        super().__init__(spin_system, points, sweep_widths, offsets, channels)
+        self.name = f"{self.channels[0].ssname} {self.name}"
+
+    @copydoc(Simulation._pulse_sequence)
+    def _pulse_sequence(self) -> np.ndarray:
+        pts, sw, off, nuc = (
+            self.points, self.sweep_widths, self.offsets, self.channels.name,
+        )
+
+        # Hamiltonian propagator
+        hamiltonian = spin_system.hamiltonian(offsets={nuc: off})
+        evol = hamiltonian.rotation_operator(1 / sw)
+
+        # pi / 2 pulse propagator
+        phase = np.pi / 2
+        pulse = spin_system.pulse(channel.name, phase=phase, angle=np.pi / 2)
+
+        # Detection operator
+        detect = spin_system.Ix(nuc) - 1j * spin_system.Iy(nuc)
+
+        # Initialise density operator
+        rho = spin_system.equilibrium_operator
+
+        # Initialise FID array
+        fid = np.zeros(points, dtype="complex")
+
+        # --- Apply π/2 pulse ---
+        rho = rho.propagate(pulse)
+
+        # --- Detection ---
+        for i in range(pts):
+            fid[i] = rho.expectation(detect)
+            rho = rho.propagate(evol)
+
+        fid *= np.exp(np.linspace(0, -10, points))
+        return fid
+
+    def _fid(self) -> Tuple[np.ndarray, np.ndarray]:
+        pts, sw = self.points[0], self.sweep_widths[0]
+        tp = np.linspace(0, (pts - 1) / sw, pts)
+        if isinstance(self.fid, np.ndarray):
+            return tp, self.fid
+
+    def _spectrum(self, zf_factor: int = 1) -> Tuple[np.ndarray, np.ndarray]:
+        sw, off, pts = self.sweep_widths[0], self.offsets[0], self.points[0]
         shifts = np.linspace((sw / 2) + off, -(sw / 2) + off, pts * zf_factor)
         spectrum = fft.fftshift(
             fft.fft(
-                self._fid["fid"],
+                self.fid,
                 pts * zf_factor,
             )
         )
 
         return shifts, np.flip(spectrum)
-
-
-def pa(
-    spin_system: SpinSystem,
-    points: Tuple[int],
-    sweep_width: Tuple[Union[str, float, int]],
-    offset: Tuple[Union[str, float, int]] = [0.0],
-    channel: Tuple[Union[str, Nucleus]] = ["1H"],
-) -> PulseAcquireResult:
-    """Perform a pulse-acquire experiment simulation.
-
-    Parameters
-    ----------
-
-    spin_system
-        The spin system to run the simulation on.
-
-    points
-        The number of points for acquisition.
-
-    sweep_width
-        The sweep width.
-
-    offset
-        The transmitter offset.
-
-    channel
-        The nucleus identity.
-    """
-    points, sweep_width, offset, channel = process_params(
-        1, 1, [0], points, sweep_width, offset, channel, spin_system.field,
-    )
-    points, sweep_width, offset, channel = (
-        points[0], sweep_width[0], offset[0], channel[0],
-    )
-    channel_name = u''.join(
-        dict(zip(u"0123456789", u"⁰¹²³⁴⁵⁶⁷⁸⁹")).get(c, c) for c in channel.name
-    )
-
-    print(
-        f"Simulating {channel_name} pulse-acquire experiment.\n"
-        f"Temperature: {spin_system.temperature}K\n"
-        f"Field Strength: {spin_system.field}T\n"
-        f"Sweep width: {sweep_width}Hz\n"
-        f"Transmitter offset: {offset}Hz\n"
-        f"Points sampled: {points}\n"
-    )
-
-    # Hamiltonian propagator
-    hamiltonian = spin_system.hamiltonian(offsets={channel.name: offset})
-    evol = hamiltonian.rotation_operator(1 / sweep_width)
-
-    # pi / 2 pulse propagator
-    pulse = spin_system.pulse(channel.name, phase=np.pi / 2, angle=np.pi / 2)
-
-    # Detection operator
-    Iminus = spin_system.Ix(channel.name) - 1j * spin_system.Iy(channel.name)
-
-    # Set density operator to be in equilibrium state
-    rho = spin_system.equilibrium_operator
-
-    fid = np.zeros(points, dtype="complex")
-
-    # --- Run the experiment ---
-    # Apply pulse
-    rho = rho.propagate(pulse)
-    for i in range(points):
-        fid[i] = rho.expectation(Iminus)
-        rho = rho.propagate(evol)
-
-    fid *= np.exp(np.linspace(0, -10, points))
-
-    dim_info = [{"nuc": channel, "sw": sweep_width, "off": offset, "pts": points}]
-    return PulseAcquireResult({"fid": fid}, dim_info, spin_system)
 
 
 if __name__ == "__main__":

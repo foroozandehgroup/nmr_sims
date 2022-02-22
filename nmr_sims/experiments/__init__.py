@@ -1,7 +1,7 @@
 # __init__.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Fri 18 Feb 2022 17:20:29 GMT
+# Last Edited: Mon 21 Feb 2022 15:58:36 GMT
 
 """This module contains a collection of pre-defined functions for simulating
 a number of solution-state NMR experiments. The current available experiments are:
@@ -72,6 +72,7 @@ class Simulation:
         """
         self.__dict__.update(locals())
         self.process_params()
+        self.generate_pulses()
         self._fid = None
 
     def process_params(self) -> None:
@@ -127,6 +128,43 @@ class Simulation:
             f"* Points sampled: {ptsstr}"
         )
         print(msg)
+
+    def generate_pulses(self) -> None:
+        halfpi = 0.5 * np.pi
+        pi = np.pi
+        threehalfpi = 1.5 * np.pi
+        self.pulses = {}
+        nucs = [channel.name for channel in self.channels]
+        for i, nuc in enumerate(nucs, start=1):
+            self.pulses[i] = {
+                "x": {
+                    "90": self.spin_system.pulse(nuc, phase=0., angle=halfpi),
+                    "180": self.spin_system.pulse(nuc, phase=0., angle=pi),
+                },
+                "y": {
+                    "90": self.spin_system.pulse(nuc, phase=halfpi, angle=halfpi),
+                    "180": self.spin_system.pulse(nuc, phase=halfpi, angle=pi),
+                },
+                "-x": {
+                    "90": self.spin_system.pulse(nuc, phase=pi, angle=halfpi),
+                    "180": self.spin_system.pulse(nuc, phase=pi, angle=pi),
+                },
+                "-y": {
+                    "90": self.spin_system.pulse(nuc, phase=threehalfpi, angle=halfpi),
+                    "180": self.spin_system.pulse(nuc, phase=threehalfpi, angle=pi),
+                },
+            }
+
+    @property
+    def field(self) -> float:
+        return self.spin_system.field
+
+    @property
+    def sfo(self) -> Iterable[float]:
+        return [
+            channel.gamma * self.field / (2e6 * np.pi)
+            for channel in self.channels
+        ]
 
     def simulate(self) -> Result:
         """Simulate the NMR experiment."""

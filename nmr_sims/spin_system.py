@@ -1,7 +1,7 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 21 Feb 2022 17:05:51 GMT
+# Last Edited: Fri 25 Feb 2022 18:35:38 GMT
 
 r"""This module provides the :py:class:`SpinSystem` class, allowing specification
 of a specific spin system according to the nuclear idenitites, isotropic chemical
@@ -250,7 +250,7 @@ class SpinSystem(CartesianBasis):
             )
         )
 
-    def hamiltonian(self, offsets: Union[dict, None] = None) -> Operator:
+    def hamiltonian(self, offsets: Union[dict, None] = None, decouple=None) -> Operator:
         r"""Return the Hamiltonian for the spin system.
 
         Given by:
@@ -276,16 +276,24 @@ class SpinSystem(CartesianBasis):
         H = self.zero
         frequencies = self.rotframe_frequencies
         couplings = self.couplings
-        for i, freq in enumerate(frequencies, start=1):
+        isotopes = [self.spin_dict[i].nucleus.name for i in range(1, self.nspins + 1)]
+        for i, (isotope1, freq) in enumerate(zip(isotopes, frequencies), start=1):
             H += freq * self.get(f"{i}z")
             if i == self.nspins:
                 break
-            for j, coupling in enumerate(couplings[i:, i - 1], start=i + 1):
-                H += 2 * np.pi * coupling * (
-                    self.get(f"{i}x{j}x") +
-                    self.get(f"{i}y{j}y") +
-                    self.get(f"{i}z{j}z")
-                )
+            for j, (isotope2, coupling) in enumerate(zip(
+                isotopes[i:],
+                couplings[i:, i - 1]
+            ), start=i + 1):
+                if isotope1 == isotope2:
+                    H += np.pi * coupling * (
+                        self.get(f"{i}x{j}x") +
+                        self.get(f"{i}y{j}y") +
+                        self.get(f"{i}z{j}z")
+                    )
+                elif decouple not in (isotope1, isotope2):
+                    H += np.pi * coupling * self.get(f"{i}z{j}z")
+                # Decouple: don't include scalar coupling
 
         if offsets is not None:
             for nuc, off in offsets.items():
@@ -302,7 +310,6 @@ class SpinSystem(CartesianBasis):
         if nucleus is None:
             labels = list(range(1, self.nspins + 1))
         else:
-            print([s.nucleus.name for i, s in self.spin_dict.items()])
             labels = [i for i, spin in self.spin_dict.items()
                       if spin.nucleus.name == nucleus]
 

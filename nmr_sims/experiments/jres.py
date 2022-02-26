@@ -1,7 +1,7 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Tue 22 Feb 2022 10:02:45 GMT
+# Last Edited: Fri 25 Feb 2022 17:58:36 GMT
 
 """Module for simulating homonuclear J-Resolved (2DJ) experiments."""
 
@@ -66,7 +66,7 @@ class JresSimulation(Simulation):
         Iminus = spin_system.Ix(nuc) - 1j * spin_system.Iy(nuc)
 
         # Initialise FID array
-        fid = np.zeros((pts1, pts2), dtype="complex")
+        fid = np.zeros((pts2, pts1), dtype="complex")
 
         for i in range(pts1):
             # Propagator for each half of the t1 period
@@ -88,12 +88,12 @@ class JresSimulation(Simulation):
 
             # --- Detection ---
             for j in range(pts2):
-                fid[i, j] = rho.expectation(Iminus)
+                fid[j, i] = rho.expectation(Iminus)
                 rho = rho.propagate(evol2)
 
         fid *= np.outer(
-            np.exp(np.linspace(0, -5, points[0])),
-            np.exp(np.linspace(0, -5, points[1])),
+            np.exp(np.linspace(0, -5, pts2)),
+            np.exp(np.linspace(0, -5, pts1)),
         )
 
         return fid
@@ -102,8 +102,8 @@ class JresSimulation(Simulation):
         pts1, pts2 = self.points
         sw1, sw2 = self.sweep_widths
         tp = np.meshgrid(
-            np.linspace(0, (pts1 - 1) / sw1, pts1),
             np.linspace(0, (pts2 - 1) / sw2, pts2),
+            np.linspace(0, (pts1 - 1) / sw1, pts1),
             indexing="ij",
         )
         return tp, self._fid
@@ -114,27 +114,29 @@ class JresSimulation(Simulation):
         sfo = self.sfo[0]
         sw1, sw2 = self.sweep_widths
         shifts = np.meshgrid(
-            np.linspace((sw1 / 2), -(sw1 / 2), pts1 * zf_factor),
             np.linspace((sw2 / 2) + off, -(sw2 / 2) + off, pts2 * zf_factor) / sfo,
+            np.linspace((sw1 / 2), -(sw1 / 2), pts1 * zf_factor),
             indexing="ij",
         )
+        fid = self._fid
+        fid[0, 0] /= 2
         spectrum = np.abs(
             np.flip(
                 fft.fftshift(
                     fft.fft(
                         fft.fft(
                             self._fid,
-                            pts1 * zf_factor,
+                            pts2 * zf_factor,
                             axis=0,
                         ),
-                        pts2 * zf_factor,
+                        pts1 * zf_factor,
                         axis=1,
                     )
                 )
             )
         )
 
-        return shifts, spectrum
+        return shifts, spectrum, (f"{self.channels[0].ssname} (ppm)", "Hz")
 
 
 if __name__ == "__main__":
@@ -158,9 +160,18 @@ if __name__ == "__main__":
     # Extract FID and timepoints
     tp, fid = sim.fid()
     # Extract spectrum and chemical shifts
-    shifts, spectrum = sim.spectrum(zf_factor=4)
+    shifts, spectrum, labels = sim.spectrum(zf_factor=4)
+
+    nlevels = 10
+    baselev = 0.02
+    factor = 1.4
+    levels = [baselev * (factor ** i) for i in range(nlevels)]
 
     fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.plot_surface(shifts[0], shifts[1], spectrum, rstride=2, cstride=2)
-    plt.show()
+    ax = fig.add_subplot()
+    ax.contour(shifts[0], shifts[1], spectrum, levels=levels, linewidths=0.6)
+    ax.set_xlim(reversed(ax.get_xlim()))
+    ax.set_ylim(reversed(ax.get_ylim()))
+    ax.set_xlabel(labels[0])
+    ax.set_ylabel(labels[1])
+    fig.savefig("example_figures/jres.pdf")

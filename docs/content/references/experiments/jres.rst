@@ -3,7 +3,6 @@ nmr_sims.experiments.jres
 
 .. automodule:: nmr_sims.experiments.jres
 
-.. autofunction:: nmr_sims.experiments.jres.jres
-
-.. autoclass:: nmr_sims.experiments.jres.JresResult
-
+.. autoclass:: nmr_sims.experiments.jres.JresSimulation
+   :inherited-members:
+   :special-members: __init__

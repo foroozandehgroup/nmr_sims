@@ -1,9 +1,14 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Fri 25 Feb 2022 17:58:36 GMT
+# Last Edited: Mon 28 Feb 2022 15:31:46 GMT
 
-"""Module for simulating homonuclear J-Resolved (2DJ) experiments."""
+"""Module for simulating homonuclear J-Resolved (2DJ) experiments.
+
+**Pulse Sequence:**
+
+.. image:: ../figures/jres/jres.png
+"""
 
 from typing import Tuple, Union
 import numpy as np
@@ -57,13 +62,13 @@ class JresSimulation(Simulation):
         sw1, sw2 = self.sweep_widths
 
         # Hamiltonian
-        hamiltonian = spin_system.hamiltonian(offsets={nuc: off})
+        hamiltonian = self.spin_system.hamiltonian(offsets={nuc: off})
 
         # Hamiltonian propagator for t2
         evol2 = hamiltonian.rotation_operator(1 / sw2)
 
         # Detection operator
-        Iminus = spin_system.Ix(nuc) - 1j * spin_system.Iy(nuc)
+        Iminus = self.spin_system.Ix(nuc) - 1j * self.spin_system.Iy(nuc)
 
         # Initialise FID array
         fid = np.zeros((pts2, pts1), dtype="complex")
@@ -73,7 +78,7 @@ class JresSimulation(Simulation):
             evol1 = hamiltonian.rotation_operator(i / (2 * sw1))
 
             # Set density matrix to Equilibrium operator
-            rho = spin_system.equilibrium_operator
+            rho = self.spin_system.equilibrium_operator
 
             # --- Apply π/2 pulse ---
             rho = rho.propagate(self.pulses[1]["y"]["90"])
@@ -92,8 +97,8 @@ class JresSimulation(Simulation):
                 rho = rho.propagate(evol2)
 
         fid *= np.outer(
-            np.exp(np.linspace(0, -5, pts2)),
-            np.exp(np.linspace(0, -5, pts1)),
+            np.exp(np.linspace(0, -7, pts2)),
+            np.exp(np.linspace(0, -7, pts1)),
         )
 
         return fid
@@ -140,9 +145,7 @@ class JresSimulation(Simulation):
 
 
 if __name__ == "__main__":
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
-    mpl.use("tkAgg")
 
     # AX3 1H spin system with A @ 2ppm and X @ 7ppm.
     # Field of 500MHz

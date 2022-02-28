@@ -1,9 +1,16 @@
 # hsqc.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Fri 25 Feb 2022 18:48:45 GMT
+# Last Edited: Mon 28 Feb 2022 11:49:58 GMT
 
-"""Module for simulating HSQC experiments."""
+"""Module for simulating HSQC experiments.
+
+**Pulse Sequence:**
+
+.. image:: ../figures/hsqc/hsqc.png
+
+The result of this pulse sequence is a pair of amplitude-modulated FIDs.
+"""
 
 import copy
 from typing import Tuple, Union
@@ -166,9 +173,7 @@ class HSQCSimulation(Simulation):
 
 
 if __name__ == "__main__":
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
-    mpl.use("tkAgg")
 
     points = [128, 512]
     sw = ["20ppm", "5ppm"]

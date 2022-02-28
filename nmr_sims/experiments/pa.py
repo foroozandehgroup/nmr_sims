@@ -1,10 +1,16 @@
 # pa.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Fri 25 Feb 2022 18:02:46 GMT
+# Last Edited: Mon 28 Feb 2022 12:18:28 GMT
 
-"""Module for simulating 1D pulse-acquire experiments."""
+"""Module for simulating 1D pulse-acquire experiments.
 
+**Pulse Sequence:**
+
+.. image:: ../figures/pa/pa.png
+
+The result of this pulse sequence is a pair of amplitude-modulated FIDs.
+"""
 from typing import Tuple, Union
 
 import numpy as np
@@ -59,10 +65,10 @@ class PulseAcquireSimulation(Simulation):
         reciever_phase
             The phase of the reciever. Common values are:
 
-            * ``0.0`` - :math:`x`
-            * ``np.pi / 2`` - :math:`y`
-            * ``np.pi`` - :math:`-x`
-            * ``-np.pi / 2`` - :math:`-y`
+            * ``0.0`` : :math:`x`
+            * ``np.pi / 2`` : :math:`y`
+            * ``np.pi`` : :math:`-x`
+            * ``-np.pi / 2`` : :math:`-y`
         """
         super().__init__(spin_system, [points], [sweep_width], [offset], [channel])
         self.name = f"{self.channels[0].ssname} Pulse-Acquire"
@@ -127,9 +133,7 @@ class PulseAcquireSimulation(Simulation):
 
 
 if __name__ == "__main__":
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
-    mpl.use("tkAgg")
 
     # AX3 1H spin system with A @ 2ppm and X @ 7ppm.
     # Field of 500MHz

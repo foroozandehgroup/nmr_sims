@@ -21,3 +21,9 @@ This version provides support for:
 ## 0.0.2
 
 `nmr_sims` is now functional on Python versions 3.7 and above. Other than that, its the same as `0.0.1`.
+
+## 0.0.3
+
+HQSC Experiments can now be simulated.
+Some corrections to spin Hamiltonian definitions.
+

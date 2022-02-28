@@ -1,6 +1,3 @@
 matplotlib
 numpy
 scipy
-Sphinx
-sphinx-nameko-theme
-sphinx-autodoc-typehints

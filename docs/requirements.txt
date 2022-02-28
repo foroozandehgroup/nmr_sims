@@ -1,0 +1,4 @@
+Sphinx
+sphinx-nameko-theme
+sphinx-autodoc-typehints
+

@@ -1,7 +1,7 @@
 # hsqc.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 28 Feb 2022 11:49:58 GMT
+# Last Edited: Mon 28 Feb 2022 16:12:24 GMT
 
 """Module for simulating HSQC experiments.
 
@@ -173,7 +173,9 @@ class HSQCSimulation(Simulation):
 
 
 if __name__ == "__main__":
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
+    mpl.use("tkAgg")
 
     points = [128, 512]
     sw = ["20ppm", "5ppm"]
@@ -198,7 +200,6 @@ if __name__ == "__main__":
     hsqc = HSQCSimulation(ss, points, sw, off, nuc, tau)
     hsqc.simulate()
     shifts, spectrum, labels = hsqc.spectrum()
-    tp, fid = hsqc.fid()
 
     fig = plt.figure()
     ax = fig.add_subplot()
@@ -213,4 +214,4 @@ if __name__ == "__main__":
     ax.set_ylim(reversed(ax.get_ylim()))
     ax.set_xlabel(labels[0])
     ax.set_ylabel(labels[1])
-    fig.savefig("example_figures/hsqc.pdf")
+    plt.show()

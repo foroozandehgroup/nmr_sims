@@ -1,7 +1,7 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 28 Feb 2022 15:31:46 GMT
+# Last Edited: Mon 28 Feb 2022 16:12:10 GMT
 
 """Module for simulating homonuclear J-Resolved (2DJ) experiments.
 
@@ -145,7 +145,9 @@ class JresSimulation(Simulation):
 
 
 if __name__ == "__main__":
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
+    mpl.use("tkAgg")
 
     # AX3 1H spin system with A @ 2ppm and X @ 7ppm.
     # Field of 500MHz
@@ -160,8 +162,6 @@ if __name__ == "__main__":
     # Simulate the experiment
     sim = JresSimulation(spin_system, points, sweep_widths, offset, channel)
     sim.simulate()
-    # Extract FID and timepoints
-    tp, fid = sim.fid()
     # Extract spectrum and chemical shifts
     shifts, spectrum, labels = sim.spectrum(zf_factor=4)
 
@@ -177,4 +177,4 @@ if __name__ == "__main__":
     ax.set_ylim(reversed(ax.get_ylim()))
     ax.set_xlabel(labels[0])
     ax.set_ylabel(labels[1])
-    fig.savefig("example_figures/jres.pdf")
+    plt.show()

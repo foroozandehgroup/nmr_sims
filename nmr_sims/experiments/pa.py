@@ -1,7 +1,7 @@
 # pa.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 28 Feb 2022 12:18:28 GMT
+# Last Edited: Mon 28 Feb 2022 16:13:07 GMT
 
 """Module for simulating 1D pulse-acquire experiments.
 
@@ -133,7 +133,9 @@ class PulseAcquireSimulation(Simulation):
 
 
 if __name__ == "__main__":
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
+    mpl.use("tkAgg")
 
     # AX3 1H spin system with A @ 2ppm and X @ 7ppm.
     # Field of 500MHz
@@ -146,8 +148,6 @@ if __name__ == "__main__":
     # Simulate the experiment
     sim = PulseAcquireSimulation(spin_system, points, sweep_width, offset, channel)
     sim.simulate()
-    # Extract FID and timepoints
-    tp, fid = sim.fid()
     # Extract spectrum and chemical shifts
     shifts, spectrum, label = sim.spectrum(zf_factor=4)
 
@@ -155,4 +155,4 @@ if __name__ == "__main__":
     ax.plot(shifts, np.real(spectrum))
     ax.set_xlim(reversed(ax.get_xlim()))
     ax.set_xlabel(label)
-    fig.savefig("example_figures/pa.pdf")
+    plt.show()

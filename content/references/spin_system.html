@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>nmr_sims.spin_system &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nameko.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="nmr_sims.nuclei" href="nuclei.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="nuclei.html" title="nmr_sims.nuclei"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">nmr_sims  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nmr_sims.spin_system</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-nmr_sims.spin_system">
+<span id="nmr-sims-spin-system"></span><h1>nmr_sims.spin_system<a class="headerlink" href="#module-nmr_sims.spin_system" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the <a class="reference internal" href="#nmr_sims.spin_system.SpinSystem" title="nmr_sims.spin_system.SpinSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpinSystem</span></code></a> class, allowing specification
+of a specific spin system according to the nuclear idenitites, isotropic chemical
+shifts, and J-couplings of each spin, along with the temperature and magnetic
+field they are subjected to.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">SpinSystem</span></code> class is used by all experiment simulation functions to derive
+the equilibrium operator and Hamiltonians required.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">nmr_sims.spin_system.</span></span><span class="sig-name descname"><span class="pre">SpinSystem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'500MHz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'298K'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object representing a particular spin system.</p>
+<p>This represents an ensemble of many identical spin systems subject to a
+specified temperature and magnetic field strength.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Ix">
+<span class="sig-name descname"><span class="pre">Ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Ix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Ix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <span class="math">\hat{I}_x</span> operator correpsonding to the system,
+with the option of specifying the nucelus to target.</p>
+<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
+<div class="math">
+<p><span class="math">\hat{I}_{x, n} = \sum_{i} \hat{I}_{ix},</span></p>
+</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
+spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
+be put on the nucleus.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Iy">
+<span class="sig-name descname"><span class="pre">Iy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Iy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Iy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <span class="math">\hat{I}_y</span> operator correpsonding to the system,
+with the option of specifying the nucelus to target.</p>
+<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
+<div class="math">
+<p><span class="math">\hat{I}_{y, n} = \sum_{i} \hat{I}_{iy},</span></p>
+</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
+spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
+be put on the nucleus.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Iz">
+<span class="sig-name descname"><span class="pre">Iz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Iz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Iz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <span class="math">\hat{I}_z</span> operator correpsonding to the system,
+with the option of specifying the nucelus to target.</p>
+<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
+<div class="math">
+<p><span class="math">\hat{I}_{z, n} = \sum_{i} \hat{I}_{iz},</span></p>
+</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
+spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
+be put on the nucleus.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'500MHz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'298K'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an instance <code class="docutils literal notranslate"><span class="pre">SpinSystem</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spins</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>]) – <p>A dictionary with information on each spin that makes up the system.
+Below is an example of a valid format. This specifies a three proton
+(AMX) system, with the following parameters:</p>
+<div class="math">
+<p><span class="math">\delta_1 = 5.4\ \mathrm{ppm}
+
+\delta_2 = 2.8\ \mathrm{ppm}
+
+\delta_3 = 0.5\ \mathrm{ppm}
+
+J_{12} = 4.6\ \mathrm{Hz}
+
+J_{13} = 7.4\ \mathrm{Hz}
+
+J_{23} = 2.7\ \mathrm{Hz}</span></p>
+</div><div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">spins</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">5.4</span><span class="p">,</span>
+        <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="mf">4.6</span><span class="p">,</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="mf">7.4</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">2.8</span><span class="p">,</span>
+        <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="mi">3</span><span class="p">:</span> <span class="mf">2.7</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">},</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that there is no need to repeat coupling information. As the
+coupling between spins 1 and 2 has been specified within the entry
+for spin 1, there is no need to repeat this for spin 2. Similary,
+spin 3 has been given no explicit coupling information as this has
+already been provided in the specification of spins 1 and 2.</p>
+<p>Each entry in the <code class="docutils literal notranslate"><span class="pre">spins</span></code> dictionary should have an <code class="docutils literal notranslate"><span class="pre">int</span></code> as a key
+and a <code class="docutils literal notranslate"><span class="pre">dict</span></code> as its value. Within the each <code class="docutils literal notranslate"><span class="pre">dict</span></code>, the following
+key-value pairs are permitted:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;shift&quot;</span></code> (necessary) - The isotropic chemical shift of the spin
+in ppm.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;couplings&quot;</span></code> (optional) - The scalar couplings between the spin
+and its coupling partners. This should be denoted by a <code class="docutils literal notranslate"><span class="pre">dict</span></code> with
+an <code class="docutils literal notranslate"><span class="pre">int</span></code> key specifying the coupling partner, and a <code class="docutils literal notranslate"><span class="pre">float</span></code> value,
+specifying the J-coupling in Hz.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;nucleus&quot;</span></code> (optional) - The identity of nucelus giving rise to
+the spin. If not specified, then <code class="docutils literal notranslate"><span class="pre">default_nucleus</span></code> will be used.
+Can be either an instance of <a class="reference internal" href="nuclei.html#nmr_sims.nuclei.Nucleus" title="nmr_sims.nuclei.Nucleus"><code class="xref py py-class docutils literal notranslate"><span class="pre">nmr_sims.nuclei.Nucleus</span></code></a>
+of a string corresponding to one of the pre-defined nuclei.</p></li>
+</ul>
+</p></li>
+<li><p><strong>default_nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="nuclei.html#nmr_sims.nuclei.Nucleus" title="nmr_sims.nuclei.Nucleus"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nucleus</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The nucleus identity of any spin in the <code class="docutils literal notranslate"><span class="pre">spins</span></code> dictionary that is not
+given an explicit <code class="docutils literal notranslate"><span class="pre">&quot;nucleus&quot;</span></code> key. By default, all unspecified nuclei
+will correspond to proton (¹H).</p></li>
+<li><p><strong>field</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – <p>The magnetic field strength. The following inputs are valid:</p>
+<ul>
+<li><p>A positive number (<code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>). The field will be taken to be
+in Telsa.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> satisfying the regex <code class="docutils literal notranslate"><span class="pre">r&quot;\d+T&quot;</span></code>. Again, the field will be
+taken to be in Tesla</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> satisfying the regex <code class="docutils literal notranslate"><span class="pre">r&quot;\d+MHz&quot;</span></code>. This corresponds to the
+field which induces the specified Larmor frequency for proton.</p></li>
+</ul>
+<p>By default, this is set as <code class="docutils literal notranslate"><span class="pre">&quot;500MHz&quot;</span></code>, correponding to approximately
+11.74T.</p>
+</p></li>
+<li><p><strong>temperature</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – <p>The temperature. The following inputs are valid:</p>
+<ul>
+<li><p>A positive number (<code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>). The field will be taken to be
+in Kelvin.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> satisfying the regex <code class="docutils literal notranslate"><span class="pre">r&quot;\d+K&quot;</span></code>. Again, the field will be
+taken to be in Kelvin.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> satisfying the regex <code class="docutils literal notranslate"><span class="pre">r&quot;-?\d+C&quot;</span></code>. The temperature will be
+taken to be in Celcius.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Current bug</strong></p>
+<p>Negative Celcius specifications (<code class="docutils literal notranslate"><span class="pre">&quot;-\d+C&quot;</span></code>) are not supported currently,
+and will raise an error if given. PLease manually convert to Kelvin.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.__weakref__">
+<span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.basic_frequencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">basic_frequencies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.basic_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the baisc (laboratory frame) frequencies of each spin.</p>
+<p>Given by <span class="math">-\gamma B_0 \left(1 + \delta \times 10^{-6}\right)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.boltzmann_factor">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">boltzmann_factor</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.boltzmann_factor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Boltzmann factor for each spin in the spin system.</p>
+<p>This factor is given by <span class="math">2 \pi \beta \gamma B_0</span>. See
+<a class="reference internal" href="#nmr_sims.spin_system.SpinSystem.inverse_temperature" title="nmr_sims.spin_system.SpinSystem.inverse_temperature"><code class="xref py py-meth docutils literal notranslate"><span class="pre">inverse_temperature()</span></code></a> for the definition of <span class="math">\beta</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.equilibrium_operator">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equilibrium_operator</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">nmr_sims._operators.Operator</span></em><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.equilibrium_operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the equilibrium operator of the spin system.</p>
+<p>Given by:</p>
+<div class="math">
+<p><span class="math">\hat{\rho}_{\mathrm{eq}} =
+\frac{1}{N} \left(\hat{E} + 2 \pi \beta B_0 \sum_{i=1}^N
+\gamma_i \hat{I}_{iz}\right)</span></p>
+</div><p>Where <span class="math">N</span> is the number of spins, and <span class="math">\hat{E}</span> is the identity
+operator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.hamiltonian">
+<span class="sig-name descname"><span class="pre">hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decouple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.hamiltonian" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Hamiltonian for the spin system.</p>
+<p>Given by:</p>
+<div class="math">
+<p><span class="math">\hat{H} = -B_0 \sum_{i=1}^N (\delta_i \times 10^{-6}) \gamma_i
+\hat{I}_{iz}
++ 2 \pi \sum_{i=1}^{N-1} \sum_{j=i+1}^N
+J_{ij} \left(
+\hat{I}_{ix} \hat{I}_{jx} +
+\hat{I}_{iy} \hat{I}_{jy} +
+\hat{I}_{iz} \hat{I}_{jz} \right)</span></p>
+</div><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>offsets</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>]) – Specification of transmitter offsets for given nuclei, in units of Hz.
+As an example, the argument <code class="docutils literal notranslate"><span class="pre">{&quot;1H&quot;:</span> <span class="pre">5000}</span></code> would inorporate a
+transmtter offset of 5000Hz for proton.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.inverse_temperature">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inverse_temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.inverse_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the inverse temperature for the system.</p>
+<p>Given by <span class="math">\beta = \hbar / k_{\mathrm{B}} T</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.pulse">
+<span class="sig-name descname"><span class="pre">pulse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5707963267948966</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.pulse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.pulse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the operator for a pulse targeting a specific nucleus, with
+specified phase and flip angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nucleus</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The identity of the nucleus to be targeted. Should match the
+<code class="docutils literal notranslate"><span class="pre">nucleus.name</span></code>.</p></li>
+<li><p><strong>phase</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Desired phase of the pulse in radians.</p></li>
+<li><p><strong>Angle</strong> – Desired flip angle in radians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.rotframe_frequencies">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotframe_frequencies</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span></em><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.rotframe_frequencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the rotating frame frequencies for each spin.</p>
+<p>Given by <span class="math">-\gamma B_0 \left(\delta \times 10^{-6}\right)</span></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation index</a><ul>
+  <li><a href="index.html">Reference</a><ul>
+      <li>Previous: <a href="nuclei.html" title="previous chapter">nmr_sims.nuclei</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/content/references/spin_system.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

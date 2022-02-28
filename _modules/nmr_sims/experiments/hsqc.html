@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nmr_sims.experiments.hsqc &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nameko.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../content/index.html">nmr_sims  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nmr_sims.experiments.hsqc</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for nmr_sims.experiments.hsqc</h1><div class="highlight"><pre>
+<span></span><span class="c1"># hsqc.py</span>
+<span class="c1"># Simon Hulse</span>
+<span class="c1"># simon.hulse@chem.ox.ac.uk</span>
+<span class="c1"># Last Edited: Mon 28 Feb 2022 16:12:24 GMT</span>
+
+<span class="sd">&quot;&quot;&quot;Module for simulating HSQC experiments.</span>
+
+<span class="sd">**Pulse Sequence:**</span>
+
+<span class="sd">.. image:: ../figures/hsqc/hsqc.png</span>
+
+<span class="sd">The result of this pulse sequence is a pair of amplitude-modulated FIDs.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">fft</span>
+
+<span class="kn">from</span> <span class="nn">nmr_sims.nuclei</span> <span class="kn">import</span> <span class="n">Nucleus</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.experiments</span> <span class="kn">import</span> <span class="n">Simulation</span>
+
+
+<div class="viewcode-block" id="HSQCSimulation"><a class="viewcode-back" href="../../../content/references/experiments/hsqc.html#nmr_sims.experiments.hsqc.HSQCSimulation">[docs]</a><span class="k">class</span> <span class="nc">HSQCSimulation</span><span class="p">(</span><span class="n">Simulation</span><span class="p">):</span>
+    <span class="n">dimension_number</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">channel_number</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">channel_mapping</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+<div class="viewcode-block" id="HSQCSimulation.__init__"><a class="viewcode-back" href="../../../content/references/experiments/hsqc.html#nmr_sims.experiments.hsqc.HSQCSimulation.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">spin_system</span><span class="p">:</span> <span class="n">SpinSystem</span><span class="p">,</span>
+        <span class="n">points</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">sweep_widths</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">offsets</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span>
+        <span class="n">channels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Nucleus</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Nucleus</span><span class="p">]],</span>
+        <span class="n">tau</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">decouple_f2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">spin_system</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">sweep_widths</span><span class="p">,</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">channels</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">ssname</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ssname</span><span class="si">}</span><span class="s2"> HSQC&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tau</span> <span class="o">=</span> <span class="n">tau</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decouple_f2</span> <span class="o">=</span> <span class="n">decouple_f2</span></div>
+
+    <span class="k">def</span> <span class="nf">_pulse_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">nuc1</span><span class="p">,</span> <span class="n">nuc2</span> <span class="o">=</span> <span class="p">[</span><span class="n">channel</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">]</span>
+        <span class="n">off1</span><span class="p">,</span> <span class="n">off2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span>
+        <span class="n">sw1</span><span class="p">,</span> <span class="n">sw2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_widths</span>
+        <span class="n">pts1</span><span class="p">,</span> <span class="n">pts2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+
+        <span class="c1"># Hamiltonian</span>
+        <span class="n">hamiltonian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_system</span><span class="o">.</span><span class="n">hamiltonian</span><span class="p">(</span><span class="n">offsets</span><span class="o">=</span><span class="p">{</span><span class="n">nuc1</span><span class="p">:</span> <span class="n">off1</span><span class="p">,</span> <span class="n">nuc2</span><span class="p">:</span> <span class="n">off2</span><span class="p">})</span>
+
+        <span class="c1"># Evolution operator for t2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">decouple_f2</span><span class="p">:</span>
+            <span class="n">hamiltonian_decoup</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_system</span><span class="o">.</span><span class="n">hamiltonian</span><span class="p">(</span>
+                <span class="n">offsets</span><span class="o">=</span><span class="p">{</span><span class="n">nuc1</span><span class="p">:</span> <span class="n">off1</span><span class="p">,</span> <span class="n">nuc2</span><span class="p">:</span> <span class="n">off2</span><span class="p">},</span>
+                <span class="n">decouple</span><span class="o">=</span><span class="n">nuc1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">evol2</span> <span class="o">=</span> <span class="n">hamiltonian_decoup</span><span class="o">.</span><span class="n">rotation_operator</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sw2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">evol2</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">rotation_operator</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sw2</span><span class="p">)</span>
+
+        <span class="c1"># Detection operator</span>
+        <span class="n">detect</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_system</span><span class="o">.</span><span class="n">Ix</span><span class="p">(</span><span class="n">nuc2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_system</span><span class="o">.</span><span class="n">Iy</span><span class="p">(</span><span class="n">nuc2</span><span class="p">)</span>
+
+        <span class="c1"># Itialise FID object</span>
+        <span class="n">fid</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;cos&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pts2</span><span class="p">,</span> <span class="n">pts1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;complex&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;sin&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">pts2</span><span class="p">,</span> <span class="n">pts1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;complex&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Initialise denistiy matrix</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_system</span><span class="o">.</span><span class="n">equilibrium_operator</span>
+
+        <span class="c1"># --- INEPT block ---</span>
+        <span class="n">evol1_inept</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">rotation_operator</span><span class="p">(</span><span class="n">tau</span><span class="p">)</span>
+        <span class="c1"># Inital π/2 pulse</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;90&quot;</span><span class="p">])</span>
+        <span class="c1"># First half of INEPT evolution</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol1_inept</span><span class="p">)</span>
+        <span class="c1"># Inversion pulses</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;180&quot;</span><span class="p">])</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;180&quot;</span><span class="p">])</span>
+        <span class="c1"># Second half of INEPT evolution</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol1_inept</span><span class="p">)</span>
+        <span class="c1"># Transfer onto indirect spins</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;90&quot;</span><span class="p">])</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">][</span><span class="s2">&quot;90&quot;</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pts1</span><span class="p">):</span>
+            <span class="c1"># --- t1 evolution block ---</span>
+            <span class="n">rho_t1</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">rho</span><span class="p">)</span>
+            <span class="n">evol1_t1</span> <span class="o">=</span> <span class="n">hamiltonian</span><span class="o">.</span><span class="n">rotation_operator</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">sw1</span><span class="p">)</span>
+            <span class="c1"># First half of t1 evolution</span>
+            <span class="n">rho_t1</span> <span class="o">=</span> <span class="n">rho_t1</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol1_t1</span><span class="p">)</span>
+            <span class="c1"># π pulse</span>
+            <span class="n">rho_t1</span> <span class="o">=</span> <span class="n">rho_t1</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;180&quot;</span><span class="p">])</span>
+            <span class="c1"># Second half of t1 evolution</span>
+            <span class="n">rho_t1</span> <span class="o">=</span> <span class="n">rho_t1</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol1_t1</span><span class="p">)</span>
+
+            <span class="c1"># --- Reverse INEPT block ---</span>
+            <span class="n">rho_t1</span> <span class="o">=</span> <span class="n">rho_t1</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;90&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">phase</span><span class="p">,</span> <span class="n">comp</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;cos&quot;</span><span class="p">,</span> <span class="s2">&quot;sin&quot;</span><span class="p">)):</span>
+                <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">rho_t1</span><span class="p">)</span>
+                <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">phase</span><span class="p">][</span><span class="s2">&quot;90&quot;</span><span class="p">])</span>
+                <span class="c1"># First half of reverse INEPT evolution</span>
+                <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol1_inept</span><span class="p">)</span>
+                <span class="c1"># Inversion pulses</span>
+                <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;180&quot;</span><span class="p">])</span>
+                <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pulses</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="s2">&quot;180&quot;</span><span class="p">])</span>
+                <span class="c1"># Second half of reverse INEPT evolution</span>
+                <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol1_inept</span><span class="p">)</span>
+
+                <span class="c1"># --- Detection ---</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pts2</span><span class="p">):</span>
+                    <span class="n">fid</span><span class="p">[</span><span class="n">comp</span><span class="p">][</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">expectation</span><span class="p">(</span><span class="n">detect</span><span class="p">)</span>
+                    <span class="n">rho_t1_phase</span> <span class="o">=</span> <span class="n">rho_t1_phase</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol2</span><span class="p">)</span>
+
+        <span class="n">fid</span><span class="p">[</span><span class="s2">&quot;cos&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">pts2</span><span class="p">)),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">pts1</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="n">fid</span><span class="p">[</span><span class="s2">&quot;sin&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">pts2</span><span class="p">)),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">pts1</span><span class="p">)),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fid</span>
+
+    <span class="k">def</span> <span class="nf">_fetch_fid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">pts1</span><span class="p">,</span> <span class="n">pts2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+        <span class="n">sw1</span><span class="p">,</span> <span class="n">sw2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_widths</span>
+        <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">pts2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sw2</span><span class="p">,</span> <span class="n">pts2</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">pts1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sw1</span><span class="p">,</span> <span class="n">pts1</span><span class="p">),</span>
+            <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fid</span>
+
+    <span class="k">def</span> <span class="nf">_fetch_spectrum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zf_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">off1</span><span class="p">,</span> <span class="n">off2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span>
+        <span class="n">pts1</span><span class="p">,</span> <span class="n">pts2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span>
+        <span class="n">sfo1</span><span class="p">,</span> <span class="n">sfo2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfo</span>
+        <span class="n">sw1</span><span class="p">,</span> <span class="n">sw2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_widths</span>
+
+        <span class="n">shifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">((</span><span class="n">sw2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off2</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">sw2</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off2</span><span class="p">,</span> <span class="n">pts2</span> <span class="o">*</span> <span class="n">zf_factor</span><span class="p">)</span> <span class="o">/</span> <span class="n">sfo2</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">((</span><span class="n">sw1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off1</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">sw1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off1</span><span class="p">,</span> <span class="n">pts1</span> <span class="o">*</span> <span class="n">zf_factor</span><span class="p">)</span> <span class="o">/</span> <span class="n">sfo1</span><span class="p">,</span>
+            <span class="n">indexing</span><span class="o">=</span><span class="s2">&quot;ij&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">cos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fid</span><span class="p">[</span><span class="s2">&quot;cos&quot;</span><span class="p">]</span>
+        <span class="n">cos</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">2</span>
+        <span class="n">sin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fid</span><span class="p">[</span><span class="s2">&quot;sin&quot;</span><span class="p">]</span>
+        <span class="n">sin</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">2</span>
+
+        <span class="n">cos_f2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">cos</span><span class="p">,</span> <span class="n">zf_factor</span> <span class="o">*</span> <span class="n">pts2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">sin_f2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span><span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="n">sin</span><span class="p">,</span> <span class="n">zf_factor</span> <span class="o">*</span> <span class="n">pts2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">axes</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">spectrum</span> <span class="o">=</span> <span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span>
+            <span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span>
+                <span class="n">cos_f2</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">sin_f2</span><span class="p">,</span>
+                <span class="n">pts1</span> <span class="o">*</span> <span class="n">zf_factor</span><span class="p">,</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">axes</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">channel</span><span class="o">.</span><span class="n">ssname</span><span class="si">}</span><span class="s2"> (ppm)&quot;</span>
+                        <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">labels</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="n">mpl</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;tkAgg&quot;</span><span class="p">)</span>
+
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">512</span><span class="p">]</span>
+    <span class="n">sw</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;20ppm&quot;</span><span class="p">,</span> <span class="s2">&quot;5ppm&quot;</span><span class="p">]</span>
+    <span class="n">off</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;50ppm&quot;</span><span class="p">,</span> <span class="s2">&quot;2ppm&quot;</span><span class="p">]</span>
+    <span class="n">nuc</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;13C&quot;</span><span class="p">,</span> <span class="s2">&quot;1H&quot;</span><span class="p">]</span>
+
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">SpinSystem</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="mi">2</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+            <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;13C&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">tau</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="n">hsqc</span> <span class="o">=</span> <span class="n">HSQCSimulation</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">sw</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">nuc</span><span class="p">,</span> <span class="n">tau</span><span class="p">)</span>
+    <span class="n">hsqc</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+    <span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">hsqc</span><span class="o">.</span><span class="n">spectrum</span><span class="p">()</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">()</span>
+
+    <span class="n">number</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.3</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span> <span class="o">*</span> <span class="p">(</span><span class="n">factor</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">)]</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">shifts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shifts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">spectrum</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../content/index.html">Documentation index</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

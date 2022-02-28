@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>nmr_sims.experiments &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/nameko.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="nmr_sims.experiments.pa" href="pa.html" />
+    <link rel="prev" title="Reference" href="../index.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pa.html" title="nmr_sims.experiments.pa"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="Reference"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">nmr_sims  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Reference</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nmr_sims.experiments</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="nmr-sims-experiments">
+<h1>nmr_sims.experiments<a class="headerlink" href="#nmr-sims-experiments" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pa.html">nmr_sims.experiments.pa</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jres.html">nmr_sims.experiments.jres</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hsqc.html">nmr_sims.experiments.hsqc</a></li>
+</ul>
+</div>
+<span class="target" id="module-nmr_sims.experiments"></span><p>This module contains a collection of pre-defined objects for simulating
+a number of solution-state NMR experiments. The current available experiments are:</p>
+<ul class="simple">
+<li><p>1D Pulse-acquire (<a class="reference internal" href="pa.html#module-nmr_sims.experiments.pa" title="nmr_sims.experiments.pa"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nmr_sims.experiments.pa</span></code></a>)</p></li>
+<li><p>Homonuclear J-resolved (<a class="reference internal" href="jres.html#module-nmr_sims.experiments.jres" title="nmr_sims.experiments.jres"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nmr_sims.experiments.jres</span></code></a>)</p></li>
+<li><p>HSQC (<a class="reference internal" href="hsqc.html#module-nmr_sims.experiments.hsqc" title="nmr_sims.experiments.hsqc"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nmr_sims.experiments.hsqc</span></code></a>)</p></li>
+</ul>
+<p>The <code class="xref py py-class docutils literal notranslate"><span class="pre">Simulation</span></code> base class has been created with the intention of making
+new oulse sequences easy to implement.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="nmr_sims.experiments.SAMPLE_SPIN_SYSTEM">
+<span class="sig-prename descclassname"><span class="pre">nmr_sims.experiments.</span></span><span class="sig-name descname"><span class="pre">SAMPLE_SPIN_SYSTEM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;nmr_sims.spin_system.SpinSystem</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#nmr_sims.experiments.SAMPLE_SPIN_SYSTEM" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">SAMPLE_SPIN_SYSTEM</span></code> corresponds to a proton AX₃ spin system, with:</p>
+<div class="math">
+<p><span class="math">\delta_A = 2\ \mathrm{ppm},\ \delta_X = 7\ \mathrm{ppm},
+\ J_{AX} = 10\ \mathrm{Hz}
+
+T = 298\ \mathrm{K},\ B_0 = 500\ \mathrm{MHz}\ (\approx 11.74\ \mathrm{T})</span></p>
+</div></dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation index</a><ul>
+  <li><a href="../index.html">Reference</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Reference</a></li>
+      <li>Next: <a href="pa.html" title="next chapter">nmr_sims.experiments.pa</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/content/references/experiments/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

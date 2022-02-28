@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>nmr_sims.nuclei &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nameko.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="nmr_sims.spin_system" href="spin_system.html" />
+    <link rel="prev" title="nmr_sims.experiments.hsqc" href="experiments/hsqc.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="spin_system.html" title="nmr_sims.spin_system"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="experiments/hsqc.html" title="nmr_sims.experiments.hsqc"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">nmr_sims  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Reference</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nmr_sims.nuclei</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-nmr_sims.nuclei">
+<span id="nmr-sims-nuclei"></span><h1>nmr_sims.nuclei<a class="headerlink" href="#module-nmr_sims.nuclei" title="Permalink to this headline">¶</a></h1>
+<p>The module enables specification of nuclei for use in generating spin systems
+(see <a class="reference internal" href="spin_system.html#module-nmr_sims.spin_system" title="nmr_sims.spin_system"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nmr_sims.spin_system</span></code></a>). A general <a class="reference internal" href="#nmr_sims.nuclei.Nucleus" title="nmr_sims.nuclei.Nucleus"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nucleus</span></code></a> object allows
+any nucleus (even imaginary ones) to be created. As well as this, there are numerous
+pre-defined nuclei provided by <a class="reference internal" href="#nmr_sims.nuclei.supported_nuclei" title="nmr_sims.nuclei.supported_nuclei"><code class="xref py py-data docutils literal notranslate"><span class="pre">supported_nuclei</span></code></a>.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="nmr_sims.nuclei.supported_nuclei">
+<span class="sig-prename descclassname"><span class="pre">nmr_sims.nuclei.</span></span><span class="sig-name descname"><span class="pre">supported_nuclei</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'13C':</span> <span class="pre">&lt;nmr_sims.nuclei.Nucleus</span> <span class="pre">object&gt;,</span> <span class="pre">'15N':</span> <span class="pre">&lt;nmr_sims.nuclei.Nucleus</span> <span class="pre">object&gt;,</span> <span class="pre">'19F':</span> <span class="pre">&lt;nmr_sims.nuclei.Nucleus</span> <span class="pre">object&gt;,</span> <span class="pre">'1H':</span> <span class="pre">&lt;nmr_sims.nuclei.Nucleus</span> <span class="pre">object&gt;,</span> <span class="pre">'2H':</span> <span class="pre">&lt;nmr_sims.nuclei.Nucleus</span> <span class="pre">object&gt;,</span> <span class="pre">'31P':</span> <span class="pre">&lt;nmr_sims.nuclei.Nucleus</span> <span class="pre">object&gt;}</span></em><a class="headerlink" href="#nmr_sims.nuclei.supported_nuclei" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">nmr_sims.nuclei.</span></span><span class="sig-name descname"><span class="pre">Nucleus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/nuclei.html#Nucleus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.nuclei.Nucleus" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object representing the key properties of a nucleus for NMR simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/nuclei.html#Nucleus.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.nuclei.Nucleus.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <code class="docutils literal notranslate"><span class="pre">Nucelus</span></code> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the nucleus. This can be anything, but really it should be
+a <code class="docutils literal notranslate"><span class="pre">str</span></code> of the form <code class="docutils literal notranslate"><span class="pre">&quot;&lt;mass&gt;&lt;element&gt;&quot;</span></code>, such as <code class="docutils literal notranslate"><span class="pre">&quot;1H&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;13C&quot;</span></code>, etc.</p></li>
+<li><p><strong>gamma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The gyromagnetic ratio of the nucleus in units of <span class="math">\mathrm{rad}
+\mathrm{s}^{-1}\mathrm{T}^{-1}</span> (i.e. in accordance with the values in
+the first column in the table found at
+<a class="reference external" href="https://en.wikipedia.org/wiki/Gyromagnetic_ratio#For_a_nucleus">this link</a>
+multiplied by <span class="math">10^6</span>).</p></li>
+<li><p><strong>multiplicity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of eigenstates produced as a result of the Zeeman effect. This
+is equivalent to <span class="math">2I + 1</span>, where <span class="math">I</span> in the nuclear spin quantum
+number.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus.spin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#nmr_sims.nuclei.Nucleus.spin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the spin quantum number of the nucleus.</p>
+<p>This is simply <span class="math">(M - 1) / 2</span>, where <span class="math">M</span> is the multiplicity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus.ssname">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ssname</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#nmr_sims.nuclei.Nucleus.ssname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the name of the nucleus with superscript numerals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation index</a><ul>
+  <li><a href="index.html">Reference</a><ul>
+      <li>Previous: <a href="experiments/hsqc.html" title="previous chapter">nmr_sims.experiments.hsqc</a></li>
+      <li>Next: <a href="spin_system.html" title="next chapter">nmr_sims.spin_system</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/content/references/nuclei.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

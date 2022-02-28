@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nmr_sims.nuclei &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nameko.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../content/index.html">nmr_sims  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nmr_sims.nuclei</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for nmr_sims.nuclei</h1><div class="highlight"><pre>
+<span></span><span class="c1"># nuclei.py</span>
+<span class="c1"># Simon Hulse</span>
+<span class="c1"># simon.hulse@chem.ox.ac.uk</span>
+<span class="c1"># Last Edited: Wed 16 Feb 2022 21:58:26 GMT</span>
+
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;The module enables specification of nuclei for use in generating spin systems</span>
+<span class="sd">(see :py:mod:`nmr_sims.spin_system`). A general :py:class:`Nucleus` object allows</span>
+<span class="sd">any nucleus (even imaginary ones) to be created. As well as this, there are numerous</span>
+<span class="sd">pre-defined nuclei provided by :py:data:`supported_nuclei`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="Nucleus"><a class="viewcode-back" href="../../content/references/nuclei.html#nmr_sims.nuclei.Nucleus">[docs]</a><span class="k">class</span> <span class="nc">Nucleus</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;An object representing the key properties of a nucleus for NMR simulation.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Nucleus.__init__"><a class="viewcode-back" href="../../content/references/nuclei.html#nmr_sims.nuclei.Nucleus.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create a ``Nucelus`` instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        name</span>
+<span class="sd">            The name of the nucleus. This can be anything, but really it should be</span>
+<span class="sd">            a ``str`` of the form ``&quot;&lt;mass&gt;&lt;element&gt;&quot;``, such as ``&quot;1H&quot;``,</span>
+<span class="sd">            ``&quot;13C&quot;``, etc.</span>
+
+<span class="sd">        gamma</span>
+<span class="sd">            The gyromagnetic ratio of the nucleus in units of :math:`\mathrm{rad}</span>
+<span class="sd">            \mathrm{s}^{-1}\mathrm{T}^{-1}` (i.e. in accordance with the values in</span>
+<span class="sd">            the first column in the table found at</span>
+<span class="sd">            `this link</span>
+<span class="sd">            &lt;https://en.wikipedia.org/wiki/Gyromagnetic_ratio#For_a_nucleus&gt;`_</span>
+<span class="sd">            multiplied by :math:`10^6`).</span>
+
+<span class="sd">        multiplicity</span>
+<span class="sd">            The number of eigenstates produced as a result of the Zeeman effect. This</span>
+<span class="sd">            is equivalent to :math:`2I + 1`, where :math:`I` in the nuclear spin quantum</span>
+<span class="sd">            number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssname</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">spin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the spin quantum number of the nucleus.</span>
+
+<span class="sd">        This is simply :math:`(M - 1) / 2`, where :math:`M` is the multiplicity.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">round</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ssname</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the name of the nucleus with superscript numerals.&quot;&quot;&quot;</span>
+        <span class="n">transl</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">maketrans</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="s1">&#39;1234567890&#39;</span><span class="p">,</span> <span class="s1">&#39;¹²³⁴⁵⁶⁷⁸⁹⁰&#39;</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">transl</span><span class="p">)</span></div>
+
+
+<span class="c1"># All from NMR Enc. 1996</span>
+<span class="c1">#:</span>
+<span class="n">supported_nuclei</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;1H&quot;</span><span class="p">:</span> <span class="n">Nucleus</span><span class="p">(</span><span class="s2">&quot;1H&quot;</span><span class="p">,</span> <span class="mf">2.6752218744e8</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;2H&quot;</span><span class="p">:</span> <span class="n">Nucleus</span><span class="p">(</span><span class="s2">&quot;2H&quot;</span><span class="p">,</span> <span class="mf">4.10662791e7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="s2">&quot;13C&quot;</span><span class="p">:</span> <span class="n">Nucleus</span><span class="p">(</span><span class="s2">&quot;13C&quot;</span><span class="p">,</span> <span class="mf">6.728284e7</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;15N&quot;</span><span class="p">:</span> <span class="n">Nucleus</span><span class="p">(</span><span class="s2">&quot;15N&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.71261804e7</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;19F&quot;</span><span class="p">:</span> <span class="n">Nucleus</span><span class="p">(</span><span class="s2">&quot;19F&quot;</span><span class="p">,</span> <span class="mf">2.518148e8</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="s2">&quot;31P&quot;</span><span class="p">:</span> <span class="n">Nucleus</span><span class="p">(</span><span class="s2">&quot;31P&quot;</span><span class="p">,</span> <span class="mf">1.08394e7</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="p">}</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../content/index.html">Documentation index</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

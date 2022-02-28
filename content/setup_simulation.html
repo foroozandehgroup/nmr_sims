@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Setting Up a Simulation &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nameko.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reference" href="references/index.html" />
+    <link rel="prev" title="nmr_sims: NMR Simulations" href="index.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="references/index.html" title="Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="nmr_sims: NMR Simulations"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">nmr_sims  documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Setting Up a Simulation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="setting-up-a-simulation">
+<h1>Setting Up a Simulation<a class="headerlink" href="#setting-up-a-simulation" title="Permalink to this headline">¶</a></h1>
+<section id="defining-the-spin-system">
+<h2>Defining the Spin System<a class="headerlink" href="#defining-the-spin-system" title="Permalink to this headline">¶</a></h2>
+<p>You can define a spin_system using the <a class="reference internal" href="references/spin_system.html#nmr_sims.spin_system.SpinSystem" title="nmr_sims.spin_system.SpinSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpinSystem</span></code></a> class,
+with which you can specify:</p>
+<ul class="simple">
+<li><p>The isotope, isotropic chemical shift, and scalar couplings for each spin.</p></li>
+<li><p>The temperature (298K by default).</p></li>
+<li><p>The field strength (500MHz by default).</p></li>
+</ul>
+<p>As an example, Levitt’s <cite>Spin Dynamics</cite> describes 2,3-Dibromopropanoic acid as possessing
+protons with the following properties:</p>
+<ul class="simple">
+<li><p><span class="math">\delta_1 = 3.70\ \mathrm{ppm}</span></p></li>
+<li><p><span class="math">\delta_2 = 3.92\ \mathrm{ppm}</span></p></li>
+<li><p><span class="math">\delta_3 = 4.50\ \mathrm{ppm}</span></p></li>
+<li><p><span class="math">J_{12} = -10.1\ \mathrm{Hz}</span></p></li>
+<li><p><span class="math">J_{13} = +4.3\ \mathrm{Hz}</span></p></li>
+<li><p><span class="math">J_{23} = +11.3\ \mathrm{Hz}</span></p></li>
+</ul>
+<p>Such a spin system can be created as follows:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
+
+
+<span class="n">system</span> <span class="o">=</span> <span class="n">SpinSystem</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">3.7</span><span class="p">,</span>
+            <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="o">-</span><span class="mf">10.1</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="mf">4.3</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">3.92</span><span class="p">,</span>
+            <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="mf">11.3</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">4.5</span><span class="p">,</span>
+            <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">&quot;nucleus&quot;</span> <span class="pre">=</span> <span class="pre">&quot;1H&quot;</span></code> for each spin is not strictly necessary, as by default this is
+assumed (see the <code class="docutils literal notranslate"><span class="pre">default_nucleus</span></code> argument). For a description on specifying nuclei, look
+at <a class="reference internal" href="references/nuclei.html#module-nmr_sims.nuclei" title="nmr_sims.nuclei"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nuclei</span></code></a>.</p>
+</section>
+<section id="running-a-simulation">
+<h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this headline">¶</a></h2>
+<p>To run a simulation, you need to import the corresponding class, which will be found in
+one of the submodules within <a class="reference internal" href="references/experiments/index.html#module-nmr_sims.experiments" title="nmr_sims.experiments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">experiments</span></code></a>. For example, to perform a
+simple pulse-acquire experiment, you can use the
+<a class="reference internal" href="references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation" title="nmr_sims.experiments.pa.PulseAcquireSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">PulseAcquireSimulation</span></code></a> class, providing the spin system,
+along with required expriment parameters:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nmr_sims.experiments.pa</span> <span class="kn">import</span> <span class="n">PulseAcquireSimulation</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
+
+<span class="c1"># --snip--</span>
+
+<span class="n">sw</span> <span class="o">=</span> <span class="s2">&quot;2ppm&quot;</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="s2">&quot;4ppm&quot;</span>
+<span class="n">points</span> <span class="o">=</span> <span class="mi">4096</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="s2">&quot;1H&quot;</span>
+
+<span class="n">pa_simulation</span> <span class="o">=</span> <span class="n">PulseAcquireSimulation</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">sw</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+<span class="n">pa_simulation</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+
+<span class="c1"># The following is output to the terminal:</span>
+<span class="c1">#</span>
+<span class="c1"># Simulating ¹H Pulse-Acquire experiment</span>
+<span class="c1"># --------------------------------------</span>
+<span class="c1"># * Temperature: 298.0 K</span>
+<span class="c1"># * Field Strength: 11.743297569643232 T</span>
+<span class="c1"># * Sweep width: 500.000 (F1)</span>
+<span class="c1"># * Channel 1: ¹H, offset: 2050.000 Hz</span>
+<span class="c1"># * Points sampled: 8192 (F1)</span>
+</pre></div>
+</div>
+<p>The FID generated can then be accessed by the <code class="xref py py-meth docutils literal notranslate"><span class="pre">fid()</span></code>
+property. A process spectrum, along with chemical shifts and axis labels can be generated with the
+<a class="reference internal" href="references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum" title="nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum"><code class="xref py py-meth docutils literal notranslate"><span class="pre">spectrum()</span></code></a> method.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.experiments.pa</span> <span class="kn">import</span> <span class="n">PulseAcquireSimulation</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
+
+
+<span class="c1"># --snip --</span>
+
+<span class="n">pa_simulation</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+<span class="c1"># Zero fill to 8192 points by setting zf_factor to 2</span>
+<span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">pa_simulation</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="n">zf_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;pa_spectrum.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/pa_spectrum.png" src="../_images/pa_spectrum.png" />
+<p>As a second example, a J-Resolved (2DJ) experiment simulation could be performed using the
+<a class="reference internal" href="references/experiments/jres.html#nmr_sims.experiments.jres.JresSimulation" title="nmr_sims.experiments.jres.JresSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">JresSimulation</span></code></a> class:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.experiments.jres</span> <span class="kn">import</span> <span class="n">JresSimulation</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
+
+
+<span class="n">system</span> <span class="o">=</span> <span class="n">SpinSystem</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">3.7</span><span class="p">,</span>
+            <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">2</span><span class="p">:</span> <span class="o">-</span><span class="mf">10.1</span><span class="p">,</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="mf">4.3</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">3.92</span><span class="p">,</span>
+            <span class="s2">&quot;couplings&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="mi">3</span><span class="p">:</span> <span class="mf">11.3</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="mf">4.5</span><span class="p">,</span>
+            <span class="s2">&quot;nucleus&quot;</span><span class="p">:</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="n">sw</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;30Hz&quot;</span><span class="p">,</span> <span class="s2">&quot;1ppm&quot;</span><span class="p">]</span>
+<span class="n">offset</span> <span class="o">=</span> <span class="s2">&quot;4.1ppm&quot;</span>
+<span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">512</span><span class="p">]</span>
+<span class="n">channel</span> <span class="o">=</span> <span class="s2">&quot;1H&quot;</span>
+
+<span class="n">jres_simulation</span> <span class="o">=</span> <span class="n">JresSimulation</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">sw</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
+<span class="n">jres_simulation</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+<span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">jres_simulation</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="n">zf_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">nlevels</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">base</span> <span class="o">=</span> <span class="mf">0.015</span>
+<span class="n">factor</span> <span class="o">=</span> <span class="mf">1.4</span>
+<span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span> <span class="o">*</span> <span class="p">(</span><span class="n">factor</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlevels</span><span class="p">)]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="o">*</span><span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;jres_spectrum.png&quot;</span><span class="p">)</span>
+
+<span class="c1"># The following is output to the terminal:</span>
+<span class="c1">#</span>
+<span class="c1"># Simulating ¹H J-Resolved experiment</span>
+<span class="c1"># -----------------------------------</span>
+<span class="c1"># * Temperature: 298.0 K</span>
+<span class="c1"># * Field Strength: 11.743297569643232 T</span>
+<span class="c1"># * Sweep width: 30.000 (F1), 500.000 (F2)</span>
+<span class="c1"># * Channel 1: ¹H, offset: 2050.000 Hz</span>
+<span class="c1"># * Points sampled: 128 (F1), 512 (F2)</span>
+</pre></div>
+</div>
+<img alt="../_images/jres_spectrum.png" src="../_images/jres_spectrum.png" />
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Setting Up a Simulation</a><ul>
+<li><a class="reference internal" href="#defining-the-spin-system">Defining the Spin System</a></li>
+<li><a class="reference internal" href="#running-a-simulation">Running a Simulation</a></li>
+</ul>
+</li>
+</ul>
+
+  </div><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation index</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">nmr_sims: NMR Simulations</a></li>
+      <li>Next: <a href="references/index.html" title="next chapter">Reference</a></li>
+  </ul></li>
+</ul>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/content/setup_simulation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

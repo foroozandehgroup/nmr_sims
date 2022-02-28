@@ -1,0 +1,459 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>nmr_sims.spin_system &#8212; nmr_sims  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nameko.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Lora:400' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head><body>
+  
+  
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../content/index.html">nmr_sims  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">nmr_sims.spin_system</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for nmr_sims.spin_system</h1><div class="highlight"><pre>
+<span></span><span class="c1"># spin_system.py</span>
+<span class="c1"># Simon Hulse</span>
+<span class="c1"># simon.hulse@chem.ox.ac.uk</span>
+<span class="c1"># Last Edited: Fri 25 Feb 2022 18:35:38 GMT</span>
+
+<span class="sa">r</span><span class="sd">&quot;&quot;&quot;This module provides the :py:class:`SpinSystem` class, allowing specification</span>
+<span class="sd">of a specific spin system according to the nuclear idenitites, isotropic chemical</span>
+<span class="sd">shifts, and J-couplings of each spin, along with the temperature and magnetic</span>
+<span class="sd">field they are subjected to.</span>
+
+<span class="sd">The ``SpinSystem`` class is used by all experiment simulation functions to derive</span>
+<span class="sd">the equilibrium operator and Hamiltonians required.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">nmr_sims.nuclei</span> <span class="kn">import</span> <span class="n">Nucleus</span>
+<span class="kn">from</span> <span class="nn">nmr_sims._operators</span> <span class="kn">import</span> <span class="n">CartesianBasis</span><span class="p">,</span> <span class="n">Operator</span>
+<span class="kn">from</span> <span class="nn">nmr_sims</span> <span class="kn">import</span> <span class="n">_sanity</span>
+
+
+<span class="c1"># Currently only applicable for homonuclear systems</span>
+<div class="viewcode-block" id="SpinSystem"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem">[docs]</a><span class="k">class</span> <span class="nc">SpinSystem</span><span class="p">(</span><span class="n">CartesianBasis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Object representing a particular spin system.</span>
+
+<span class="sd">    This represents an ensemble of many identical spin systems subject to a</span>
+<span class="sd">    specified temperature and magnetic field strength.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kB</span> <span class="o">=</span> <span class="mf">1.380649e-23</span>
+    <span class="n">hbar</span> <span class="o">=</span> <span class="mf">1.054571817e-34</span>
+
+<div class="viewcode-block" id="SpinSystem.__init__"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">spins</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span>
+        <span class="n">default_nucleus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Nucleus</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
+        <span class="n">field</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;500MHz&quot;</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;298K&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create an instance ``SpinSystem``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        spins</span>
+<span class="sd">            A dictionary with information on each spin that makes up the system.</span>
+<span class="sd">            Below is an example of a valid format. This specifies a three proton</span>
+<span class="sd">            (AMX) system, with the following parameters:</span>
+
+<span class="sd">            .. math::</span>
+
+<span class="sd">                \delta_1 = 5.4\ \mathrm{ppm}</span>
+
+<span class="sd">                \delta_2 = 2.8\ \mathrm{ppm}</span>
+
+<span class="sd">                \delta_3 = 0.5\ \mathrm{ppm}</span>
+
+<span class="sd">                J_{12} = 4.6\ \mathrm{Hz}</span>
+
+<span class="sd">                J_{13} = 7.4\ \mathrm{Hz}</span>
+
+<span class="sd">                J_{23} = 2.7\ \mathrm{Hz}</span>
+
+<span class="sd">            .. code:: python3</span>
+
+<span class="sd">                spins = {</span>
+<span class="sd">                    1: {</span>
+<span class="sd">                        &quot;shift&quot;: 5.4,</span>
+<span class="sd">                        &quot;couplings&quot;: {</span>
+<span class="sd">                            2: 4.6,</span>
+<span class="sd">                            3: 7.4,</span>
+<span class="sd">                        },</span>
+<span class="sd">                    },</span>
+<span class="sd">                    2: {</span>
+<span class="sd">                        &quot;shift&quot;: 2.8,</span>
+<span class="sd">                        &quot;couplings&quot;: {</span>
+<span class="sd">                            3: 2.7,</span>
+<span class="sd">                        },</span>
+<span class="sd">                    },</span>
+<span class="sd">                    3: {</span>
+<span class="sd">                        &quot;shift&quot;: 0.5,</span>
+<span class="sd">                    },</span>
+<span class="sd">                }</span>
+
+<span class="sd">            Note that there is no need to repeat coupling information. As the</span>
+<span class="sd">            coupling between spins 1 and 2 has been specified within the entry</span>
+<span class="sd">            for spin 1, there is no need to repeat this for spin 2. Similary,</span>
+<span class="sd">            spin 3 has been given no explicit coupling information as this has</span>
+<span class="sd">            already been provided in the specification of spins 1 and 2.</span>
+
+<span class="sd">            Each entry in the ``spins`` dictionary should have an ``int`` as a key</span>
+<span class="sd">            and a ``dict`` as its value. Within the each ``dict``, the following</span>
+<span class="sd">            key-value pairs are permitted:</span>
+
+<span class="sd">            * ``&quot;shift&quot;`` (necessary) - The isotropic chemical shift of the spin</span>
+<span class="sd">              in ppm.</span>
+<span class="sd">            * ``&quot;couplings&quot;`` (optional) - The scalar couplings between the spin</span>
+<span class="sd">              and its coupling partners. This should be denoted by a ``dict`` with</span>
+<span class="sd">              an ``int`` key specifying the coupling partner, and a ``float`` value,</span>
+<span class="sd">              specifying the J-coupling in Hz.</span>
+<span class="sd">            * ``&quot;nucleus&quot;`` (optional) - The identity of nucelus giving rise to</span>
+<span class="sd">              the spin. If not specified, then ``default_nucleus`` will be used.</span>
+<span class="sd">              Can be either an instance of :py:class:`nmr_sims.nuclei.Nucleus`</span>
+<span class="sd">              of a string corresponding to one of the pre-defined nuclei.</span>
+
+<span class="sd">        default_nucleus</span>
+<span class="sd">            The nucleus identity of any spin in the ``spins`` dictionary that is not</span>
+<span class="sd">            given an explicit ``&quot;nucleus&quot;`` key. By default, all unspecified nuclei</span>
+<span class="sd">            will correspond to proton (¹H).</span>
+
+<span class="sd">        field</span>
+<span class="sd">            The magnetic field strength. The following inputs are valid:</span>
+
+<span class="sd">            * A positive number (``int`` or ``float``). The field will be taken to be</span>
+<span class="sd">              in Telsa.</span>
+<span class="sd">            * A ``str`` satisfying the regex ``r&quot;\d+T&quot;``. Again, the field will be</span>
+<span class="sd">              taken to be in Tesla</span>
+<span class="sd">            * A ``str`` satisfying the regex ``r&quot;\d+MHz&quot;``. This corresponds to the</span>
+<span class="sd">              field which induces the specified Larmor frequency for proton.</span>
+
+<span class="sd">            By default, this is set as ``&quot;500MHz&quot;``, correponding to approximately</span>
+<span class="sd">            11.74T.</span>
+
+<span class="sd">        temperature</span>
+<span class="sd">            The temperature. The following inputs are valid:</span>
+
+<span class="sd">            * A positive number (``int`` or ``float``). The field will be taken to be</span>
+<span class="sd">              in Kelvin.</span>
+<span class="sd">            * A ``str`` satisfying the regex ``r&quot;\d+K&quot;``. Again, the field will be</span>
+<span class="sd">              taken to be in Kelvin.</span>
+<span class="sd">            * A ``str`` satisfying the regex ``r&quot;-?\d+C&quot;``. The temperature will be</span>
+<span class="sd">              taken to be in Celcius.</span>
+
+
+<span class="sd">        .. warning::</span>
+
+<span class="sd">            **Current bug**</span>
+
+<span class="sd">            Negative Celcius specifications (``&quot;-\d+C&quot;``) are not supported currently,</span>
+<span class="sd">            and will raise an error if given. PLease manually convert to Kelvin.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">_sanity</span><span class="o">.</span><span class="n">process_temperature</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">_sanity</span><span class="o">.</span><span class="n">process_field</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span> <span class="o">=</span> <span class="n">_sanity</span><span class="o">.</span><span class="n">process_spins</span><span class="p">(</span><span class="n">spins</span><span class="p">,</span> <span class="n">default_nucleus</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">I</span> <span class="o">==</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">I</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spins</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Spin-1/2 nuclei are only supported currently!&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inverse_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the inverse temperature for the system.</span>
+
+<span class="sd">        Given by :math:`\beta = \hbar / k_{\mathrm{B}} T`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">hbar</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kB</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">boltzmann_factor</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the Boltzmann factor for each spin in the spin system.</span>
+
+<span class="sd">        This factor is given by :math:`2 \pi \beta \gamma B_0`. See</span>
+<span class="sd">        :py:meth:`inverse_temperature` for the definition of :math:`\beta`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse_temperature</span> <span class="o">*</span> <span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span>
+            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">basic_frequencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the baisc (laboratory frame) frequencies of each spin.</span>
+
+<span class="sd">        Given by :math:`-\gamma B_0 \left(1 + \delta \times 10^{-6}\right)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="o">-</span><span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1e-6</span> <span class="o">*</span> <span class="n">spin</span><span class="o">.</span><span class="n">shift</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rotframe_frequencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the rotating frame frequencies for each spin.</span>
+
+<span class="sd">        Given by :math:`-\gamma B_0 \left(\delta \times 10^{-6}\right)`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="o">-</span><span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1e-6</span> <span class="o">*</span> <span class="n">spin</span><span class="o">.</span><span class="n">shift</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">couplings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">couplings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">coupling</span> <span class="ow">in</span> <span class="n">spin</span><span class="o">.</span><span class="n">couplings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="n">couplings</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">coupling</span>
+
+        <span class="k">return</span> <span class="n">couplings</span> <span class="o">+</span> <span class="n">couplings</span><span class="o">.</span><span class="n">T</span>
+
+<div class="viewcode-block" id="SpinSystem.pulse"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.pulse">[docs]</a>    <span class="k">def</span> <span class="nf">pulse</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">phase</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the operator for a pulse targeting a specific nucleus, with</span>
+<span class="sd">        specified phase and flip angle.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        nucleus</span>
+<span class="sd">            The identity of the nucleus to be targeted. Should match the</span>
+<span class="sd">            ``nucleus.name``.</span>
+
+<span class="sd">        phase</span>
+<span class="sd">            Desired phase of the pulse in radians.</span>
+
+<span class="sd">        Angle</span>
+<span class="sd">            Desired flip angle in radians.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">operator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">nucleus</span><span class="p">:</span>
+                <span class="n">operator</span> <span class="o">+=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span> <span class="o">+</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">y&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">rotation_operator</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equilibrium_operator</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the equilibrium operator of the spin system.</span>
+
+<span class="sd">        Given by:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \hat{\rho}_{\mathrm{eq}} =</span>
+<span class="sd">            \frac{1}{N} \left(\hat{E} + 2 \pi \beta B_0 \sum_{i=1}^N</span>
+<span class="sd">            \gamma_i \hat{I}_{iz}\right)</span>
+
+<span class="sd">        Where :math:`N` is the number of spins, and :math:`\hat{E}` is the identity</span>
+<span class="sd">        operator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">identity</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">b</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span>
+                 <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boltzmann_factor</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">)],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">zero</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="SpinSystem.hamiltonian"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.hamiltonian">[docs]</a>    <span class="k">def</span> <span class="nf">hamiltonian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offsets</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">decouple</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the Hamiltonian for the spin system.</span>
+
+<span class="sd">        Given by:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \hat{H} = -B_0 \sum_{i=1}^N (\delta_i \times 10^{-6}) \gamma_i</span>
+<span class="sd">            \hat{I}_{iz}</span>
+<span class="sd">            + 2 \pi \sum_{i=1}^{N-1} \sum_{j=i+1}^N</span>
+<span class="sd">            J_{ij} \left(</span>
+<span class="sd">            \hat{I}_{ix} \hat{I}_{jx} +</span>
+<span class="sd">            \hat{I}_{iy} \hat{I}_{jy} +</span>
+<span class="sd">            \hat{I}_{iz} \hat{I}_{jz} \right)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        offsets</span>
+<span class="sd">            Specification of transmitter offsets for given nuclei, in units of Hz.</span>
+<span class="sd">            As an example, the argument ``{&quot;1H&quot;: 5000}`` would inorporate a</span>
+<span class="sd">            transmtter offset of 5000Hz for proton.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">H</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero</span>
+        <span class="n">frequencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotframe_frequencies</span>
+        <span class="n">couplings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">couplings</span>
+        <span class="n">isotopes</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">isotope1</span><span class="p">,</span> <span class="n">freq</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">isotopes</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">H</span> <span class="o">+=</span> <span class="n">freq</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="p">(</span><span class="n">isotope2</span><span class="p">,</span> <span class="n">coupling</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+                <span class="n">isotopes</span><span class="p">[</span><span class="n">i</span><span class="p">:],</span>
+                <span class="n">couplings</span><span class="p">[</span><span class="n">i</span><span class="p">:,</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">isotope1</span> <span class="o">==</span> <span class="n">isotope2</span><span class="p">:</span>
+                    <span class="n">H</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">coupling</span> <span class="o">*</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">x&quot;</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">y</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">y&quot;</span><span class="p">)</span> <span class="o">+</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">z</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">)</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">decouple</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">isotope1</span><span class="p">,</span> <span class="n">isotope2</span><span class="p">):</span>
+                    <span class="n">H</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">coupling</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">z</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">)</span>
+                <span class="c1"># Decouple: don&#39;t include scalar coupling</span>
+
+        <span class="k">if</span> <span class="n">offsets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">nuc</span><span class="p">,</span> <span class="n">off</span> <span class="ow">in</span> <span class="n">offsets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">H</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">off</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">z&quot;</span><span class="p">)</span>
+                     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                     <span class="k">if</span> <span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">nuc</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zero</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">H</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coord</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">nucleus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                      <span class="k">if</span> <span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">nucleus</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}{</span><span class="n">coord</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">zero</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpinSystem.Ix"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.Ix">[docs]</a>    <span class="k">def</span> <span class="nf">Ix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the :math:`\hat{I}_x` operator correpsonding to the system,</span>
+<span class="sd">        with the option of specifying the nucelus to target.</span>
+
+<span class="sd">        For a given nucleus :math:`n`, this is given by:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \hat{I}_{x, n} = \sum_{i} \hat{I}_{ix},</span>
+
+<span class="sd">        :math:`\forall i \in \{1, \cdots, N\}` satisfying the requirement that</span>
+<span class="sd">        spin :math:`i` corresponds to nucelus :math:`n`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        nucleus</span>
+<span class="sd">            The identity of the nucelus to target. If ``None``, no constraint will</span>
+<span class="sd">            be put on the nucleus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sum</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpinSystem.Iy"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.Iy">[docs]</a>    <span class="k">def</span> <span class="nf">Iy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the :math:`\hat{I}_y` operator correpsonding to the system,</span>
+<span class="sd">        with the option of specifying the nucelus to target.</span>
+
+<span class="sd">        For a given nucleus :math:`n`, this is given by:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \hat{I}_{y, n} = \sum_{i} \hat{I}_{iy},</span>
+
+<span class="sd">        :math:`\forall i \in \{1, \cdots, N\}` satisfying the requirement that</span>
+<span class="sd">        spin :math:`i` corresponds to nucelus :math:`n`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        nucleus</span>
+<span class="sd">            The identity of the nucelus to target. If ``None``, no constraint will</span>
+<span class="sd">            be put on the nucleus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sum</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpinSystem.Iz"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.Iz">[docs]</a>    <span class="k">def</span> <span class="nf">Iz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Operator</span><span class="p">:</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the :math:`\hat{I}_z` operator correpsonding to the system,</span>
+<span class="sd">        with the option of specifying the nucelus to target.</span>
+
+<span class="sd">        For a given nucleus :math:`n`, this is given by:</span>
+
+<span class="sd">        .. math::</span>
+
+<span class="sd">            \hat{I}_{z, n} = \sum_{i} \hat{I}_{iz},</span>
+
+<span class="sd">        :math:`\forall i \in \{1, \cdots, N\}` satisfying the requirement that</span>
+<span class="sd">        spin :math:`i` corresponds to nucelus :math:`n`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        nucleus</span>
+<span class="sd">            The identity of the nucelus to target. If ``None``, no constraint will</span>
+<span class="sd">            be put on the nucleus.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sum</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">)</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="../../content/index.html">Documentation index</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  
+  </body>
+</html>

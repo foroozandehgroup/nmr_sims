@@ -13,3 +13,5 @@ Currently have pulse-acquire, 2DJ, and HSQC code available.
 Install with `$pip install nmr-sims`
 
 To get started, take a look at (and run) `$python -m nmr_sims pa`, `$python -m nmr_sims jres` or `$python -m nmr_sims hsqc`.
+
+[**DOCUMENTATION:**](~https://foroozandehgroup.github.io/nmr_sims/content/)

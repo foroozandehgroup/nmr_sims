@@ -1,7 +1,7 @@
 # pa.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 28 Feb 2022 16:13:07 GMT
+# Last Edited: Wed 23 Mar 2022 17:46:29 GMT
 
 """Module for simulating 1D pulse-acquire experiments.
 
@@ -37,7 +37,7 @@ class PulseAcquireSimulation(Simulation):
         offset: Union[str, float, int] = 0.0,
         channel: Union[str, Nucleus] = "1H",
         pulse_phase: float = 0.0,
-        reciever_phase: float = np.pi / 2,
+        reciever_phase: float = -np.pi / 2.,
     ) -> None:
         """Initialise a simulaion object.
 
@@ -86,7 +86,7 @@ class PulseAcquireSimulation(Simulation):
         evol = hamiltonian.rotation_operator(1 / sw)
 
         # Detection operator
-        detect = self.spin_system.Ix(nuc) + 1j * self.spin_system.Iy(nuc)
+        detect = self.spin_system.Ix(nuc) - 1j * self.spin_system.Iy(nuc)
 
         # Initialise density operator
         rho = self.spin_system.equilibrium_operator
@@ -129,7 +129,7 @@ class PulseAcquireSimulation(Simulation):
             )
         )
 
-        return shifts, np.flip(spectrum), f"{self.channels[0].ssname} (ppm)"
+        return shifts, spectrum, f"{self.channels[0].ssname} (ppm)"
 
 
 if __name__ == "__main__":

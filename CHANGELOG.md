@@ -27,3 +27,7 @@ This version provides support for:
 HQSC Experiments can now be simulated.
 Some corrections to spin Hamiltonian definitions.
 
+## 0.0.4
+
+Fix of bug: Phase of FIDs from Pulse-acquire experiments was 180° off, and code to derive the spectrum flipped the spectrum
+twice to give off the impression that everything was fine! This has been corrected.

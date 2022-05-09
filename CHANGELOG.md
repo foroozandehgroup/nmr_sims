@@ -10,19 +10,19 @@ and above.**
 
 First version.
 
-- All simulations are performed in Hilbert space using the Zeeman (Cartesian)
+* All simulations are performed in Hilbert space using the Zeeman (Cartesian)
   basis.
-- Only isotropic interactions (isotropic chemical shift and scalar couplings)
+* Only isotropic interactions (isotropic chemical shift and scalar couplings)
   are supported.
 
 This version provides support for:
 
-- Generation of Cartesian basis spin operators for arbitrarily sized spin
+* Generation of Cartesian basis spin operators for arbitrarily sized spin
   systems of any spin.
-- Generation of Spin systems based on chemical shift and scalar couplings.
-- Specification of basic experimental parameters (Temperature, field strength,
+* Generation of Spin systems based on chemical shift and scalar couplings.
+* Specification of basic experimental parameters (Temperature, field strength,
   sweep width, offset, number of points).
-- Simulation of pulse-acquire and J-resolved spectroscopy experiments
+* Simulation of pulse-acquire and J-resolved spectroscopy experiments
   out-of-the-box.
 
 ## 0.0.2
@@ -43,5 +43,11 @@ that everything was fine! This has been corrected.
 
 ## 0.0.5
 
+* **Due to the dependence of** ``spins_system.SpinSystem.new_random`` **on
+  [networkx](https://networkx.org/documentation/stable/index.html), Python 3.8
+  or higher is now required to use** ``nmr_sims``.
 * Enable selection of the strength of exponential window applied to the FID.
   (`lb` argument for `fid` and `spectrum` methods).
+* Random spin systems can now be generated using
+  ``spins_system.SpinSystem.new_random``. Currently, only the generation of
+  homonuclear ¹H systems is possible.

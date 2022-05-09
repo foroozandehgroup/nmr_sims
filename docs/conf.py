@@ -1,7 +1,7 @@
 # conf.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Tue 15 Feb 2022 15:25:52 GMT
+# Last Edited: Mon 09 May 2022 18:09:07 BST
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -48,6 +48,8 @@ extensions = [
 
 master_doc = "content/index"
 napoleon_use_param = True
+
+autoclass_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

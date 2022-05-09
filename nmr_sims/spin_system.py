@@ -1,7 +1,7 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Fri 25 Feb 2022 18:35:38 GMT
+# Last Edited: Mon 09 May 2022 17:14:32 BST
 
 r"""This module provides the :py:class:`SpinSystem` class, allowing specification
 of a specific spin system according to the nuclear idenitites, isotropic chemical
@@ -12,14 +12,22 @@ The ``SpinSystem`` class is used by all experiment simulation functions to deriv
 the equilibrium operator and Hamiltonians required.
 """
 
-from typing import Dict, Iterable, Union
+from __future__ import annotations
+import random
+from typing import Dict, Iterable, Optional, Tuple, Union
+
+import networkx as nx
 import numpy as np
+
 from nmr_sims.nuclei import Nucleus
 from nmr_sims._operators import CartesianBasis, Operator
 from nmr_sims import _sanity
 
 
-# Currently only applicable for homonuclear systems
+def triangle(n: int) -> int:
+    return int(0.5 * n * (n - 1))
+
+
 class SpinSystem(CartesianBasis):
     """Object representing a particular spin system.
 
@@ -146,6 +154,111 @@ class SpinSystem(CartesianBasis):
         )
         if not all([I == 0.5 for I in self.spins]):
             raise ValueError("Spin-1/2 nuclei are only supported currently!")
+
+    @classmethod
+    def new_random(
+        cls,
+        nspins: Union[int, Tuple[int, int]] = 3,
+        ncouplings: Optional[int] = None,
+        max_couplings: Optional[int] = 3,
+        shifts_range: Tuple[float, float] = (0.0, 10.0),
+        couplings_range: Tuple[float, float] = (3.0, 15.0),
+        field: Union[int, float, str] = "500MHz",
+        temperature: Union[int, float, str] = "298K",
+    ) -> SpinSystem:
+        """Create a new instance with random chemical shifts and offsets.
+
+        .. note::
+
+            Only homonucler ¹H spin systems are available currently.
+
+        Parameters
+        ----------
+        nspins
+            The number of spins the system should comprise.
+
+        ncouplings
+            The total number of couplings featured in the spin system. This must be
+            a value satisfying ``ncouplings <= int(0.5 * (nspins * (nspins - 1)))``
+            There is a possibility that the final spin system will have fewer couplings
+            than those stated if the random network of couplings does not satisfy
+            the constraint placed by ``max_couplings``.
+
+        max_couplings
+            The largest possible number of coupling interactions any particular spin
+            may have.
+
+        shifts_range
+            The smallest and greatest values of chemical shift any particular spin
+            may have.
+
+        couplings_range
+            The smallest and greatest values of scalar coupling any particular
+            interaction may have.
+
+        field
+            See :py:meth:`__init__`
+
+        temperature
+            See :py:meth:`__init__`
+        """
+        if not (isinstance(nspins, int) and nspins >= 1):
+            raise ValueError("`nspins` is invalid")
+
+        if not (isinstance(ncouplings, int) and 0 <= ncouplings <= triangle(nspins)):
+            raise ValueError(
+                "`ncouplings` should be a positive int no greater than "
+                f"{triangle(nspins)}."
+            )
+
+        if max_couplings is None:
+            # No chance of this being exceeded.
+            max_couplings = nspins
+        elif isinstance(max_couplings, int) and max_couplings >= 1:
+            pass
+        else:
+            raise ValueError("`max_couplings` should be a positive int or None.")
+
+        valid_range = lambda obj: (
+            isinstance(shifts_range, (list, tuple)) and
+            len(shifts_range) == 2 and
+            all([isinstance(x, float) for x in shifts_range])
+        )
+        if valid_range(shifts_range):
+            shifts_range = (min(shifts_range), max(shifts_range))
+        else:
+            raise ValueError("`shifts_range` is invalid.")
+
+        if valid_range(couplings_range):
+            couplings_range = (min(couplings_range), max(couplings_range))
+        else:
+            raise ValueError("`couplings_range` is invalid.")
+
+        graph = nx.gnm_random_graph(nspins, ncouplings)
+        overconnected_nodes = [
+            node for node, degree in graph.degree if degree > max_couplings
+        ]
+        for node in overconnected_nodes:
+            while graph.degree[node] > max_couplings:
+                graph.remove_edge(node, random.choice([x for x in graph[node]]))
+
+        spin_system = {}
+        for i in range(nspins):
+            spin_system[i + 1] = {
+                "shift": np.round(
+                    np.random.uniform(shifts_range[0], shifts_range[1]),
+                    decimals=3,
+                )
+            }
+            spin_system[i + 1]["couplings"] = {}
+
+        for i, j in graph.edges:
+            spin_system[i + 1]["couplings"][j + 1] = np.round(
+                np.random.uniform(couplings_range[0], couplings_range[1]),
+                decimals=3,
+            )
+
+        return cls(spin_system)
 
     @property
     def inverse_temperature(self) -> float:
@@ -380,3 +493,21 @@ class SpinSystem(CartesianBasis):
             be put on the nucleus.
         """
         return self._get_sum("z", nucleus)
+
+
+if __name__ == "__main__":
+    ss = SpinSystem.new_random(nspins=6, ncouplings=6, max_couplings=2)
+    from nmr_sims.experiments.pa import PulseAcquireSimulation
+
+    sim = PulseAcquireSimulation(ss, 4096, "10ppm", "5ppm")
+    sim.simulate()
+    sh, sp, lab = sim.spectrum(zf_factor=4)
+    import matplotlib as mpl
+    mpl.use("tkAgg")
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.plot(sh, sp)
+    ax.set_xlim(reversed(ax.get_xlim()))
+    ax.set_xlabel(lab)
+    plt.show()

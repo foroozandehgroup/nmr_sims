@@ -67,10 +67,7 @@ pre-defined nuclei provided by <a class="reference internal" href="#nmr_sims.nuc
 <dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">nmr_sims.nuclei.</span></span><span class="sig-name descname"><span class="pre">Nucleus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/nuclei.html#Nucleus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.nuclei.Nucleus" title="Permalink to this definition">¶</a></dt>
 <dd><p>An object representing the key properties of a nucleus for NMR simulation.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/nuclei.html#Nucleus.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.nuclei.Nucleus.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a <code class="docutils literal notranslate"><span class="pre">Nucelus</span></code> instance.</p>
+<p>Create a <code class="docutils literal notranslate"><span class="pre">Nucelus</span></code> instance.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -82,6 +79,28 @@ a <code class="docutils literal notranslate"><span class="pre">str</span></code>
 the first column in the table found at
 <a class="reference external" href="https://en.wikipedia.org/wiki/Gyromagnetic_ratio#For_a_nucleus">this link</a>
 multiplied by <span class="math">10^6</span>).</p></li>
+<li><p><strong>multiplicity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of eigenstates produced as a result of the Zeeman effect. This
+is equivalent to <span class="math">2I + 1</span>, where <span class="math">I</span> in the nuclear spin quantum
+number.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.nuclei.Nucleus.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/nuclei.html#Nucleus.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.nuclei.Nucleus.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a <code class="docutils literal notranslate"><span class="pre">Nucelus</span></code> instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The name of the nucleus. This can be anything, but really it should be
+a <code class="docutils literal notranslate"><span class="pre">str</span></code> of the form <code class="docutils literal notranslate"><span class="pre">&quot;&lt;mass&gt;&lt;element&gt;&quot;</span></code>, such as <code class="docutils literal notranslate"><span class="pre">&quot;1H&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;13C&quot;</span></code>, etc.</p></li>
+<li><p><strong>gamma</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – <p>The gyromagnetic ratio of the nucleus in units of <span class="math">\mathrm{rad}
+\mathrm{s}^{-1}\mathrm{T}^{-1}</span> (i.e. in accordance with the values in
+the first column in the table found at
+<a class="reference external" href="https://en.wikipedia.org/wiki/Gyromagnetic_ratio#For_a_nucleus">this link</a>
+multiplied by <span class="math">10^6</span>).</p>
+</p></li>
 <li><p><strong>multiplicity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of eigenstates produced as a result of the Zeeman effect. This
 is equivalent to <span class="math">2I + 1</span>, where <span class="math">I</span> in the nuclear spin quantum
 number.</p></li>

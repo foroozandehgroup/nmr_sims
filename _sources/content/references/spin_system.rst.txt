@@ -7,3 +7,4 @@ nmr_sims.spin_system
    :special-members:
    :members:
    :inherited-members:
+   :exclude-members: __init__, __weakref__

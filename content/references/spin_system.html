@@ -62,73 +62,7 @@ the equilibrium operator and Hamiltonians required.</p>
 <dd><p>Object representing a particular spin system.</p>
 <p>This represents an ensemble of many identical spin systems subject to a
 specified temperature and magnetic field strength.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Ix">
-<span class="sig-name descname"><span class="pre">Ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Ix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Ix" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <span class="math">\hat{I}_x</span> operator correpsonding to the system,
-with the option of specifying the nucelus to target.</p>
-<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
-<div class="math">
-<p><span class="math">\hat{I}_{x, n} = \sum_{i} \hat{I}_{ix},</span></p>
-</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
-spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
-be put on the nucleus.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Iy">
-<span class="sig-name descname"><span class="pre">Iy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Iy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Iy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <span class="math">\hat{I}_y</span> operator correpsonding to the system,
-with the option of specifying the nucelus to target.</p>
-<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
-<div class="math">
-<p><span class="math">\hat{I}_{y, n} = \sum_{i} \hat{I}_{iy},</span></p>
-</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
-spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
-be put on the nucleus.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Iz">
-<span class="sig-name descname"><span class="pre">Iz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Iz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Iz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the <span class="math">\hat{I}_z</span> operator correpsonding to the system,
-with the option of specifying the nucelus to target.</p>
-<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
-<div class="math">
-<p><span class="math">\hat{I}_{z, n} = \sum_{i} \hat{I}_{iz},</span></p>
-</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
-spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
-be put on the nucleus.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'500MHz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'298K'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an instance <code class="docutils literal notranslate"><span class="pre">SpinSystem</span></code>.</p>
+<p>Create an instance <code class="docutils literal notranslate"><span class="pre">SpinSystem</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -222,12 +156,67 @@ taken to be in Celcius.</p></li>
 <p>Negative Celcius specifications (<code class="docutils literal notranslate"><span class="pre">&quot;-\d+C&quot;</span></code>) are not supported currently,
 and will raise an error if given. PLease manually convert to Kelvin.</p>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Ix">
+<span class="sig-name descname"><span class="pre">Ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Ix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Ix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <span class="math">\hat{I}_x</span> operator correpsonding to the system,
+with the option of specifying the nucelus to target.</p>
+<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
+<div class="math">
+<p><span class="math">\hat{I}_{x, n} = \sum_{i} \hat{I}_{ix},</span></p>
+</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
+spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
+be put on the nucleus.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.__weakref__">
-<span class="sig-name descname"><span class="pre">__weakref__</span></span><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.__weakref__" title="Permalink to this definition">¶</a></dt>
-<dd><p>list of weak references to the object (if defined)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Iy">
+<span class="sig-name descname"><span class="pre">Iy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Iy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Iy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <span class="math">\hat{I}_y</span> operator correpsonding to the system,
+with the option of specifying the nucelus to target.</p>
+<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
+<div class="math">
+<p><span class="math">\hat{I}_{y, n} = \sum_{i} \hat{I}_{iy},</span></p>
+</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
+spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
+be put on the nucleus.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Iz">
+<span class="sig-name descname"><span class="pre">Iz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Iz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Iz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <span class="math">\hat{I}_z</span> operator correpsonding to the system,
+with the option of specifying the nucelus to target.</p>
+<p>For a given nucleus <span class="math">n</span>, this is given by:</p>
+<div class="math">
+<p><span class="math">\hat{I}_{z, n} = \sum_{i} \hat{I}_{iz},</span></p>
+</div><p><span class="math">\forall i \in \{1, \cdots, N\}</span> satisfying the requirement that
+spin <span class="math">i</span> corresponds to nucelus <span class="math">n</span>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>nucleus</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – The identity of the nucelus to target. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no constraint will
+be put on the nucleus.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -306,6 +295,39 @@ transmtter offset of 5000Hz for proton.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.new_random">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">new_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nspins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncouplings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_couplings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shifts_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">10.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">couplings_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(3.0,</span> <span class="pre">15.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'500MHz'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'298K'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.new_random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.new_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new instance with random chemical shifts and offsets.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only homonucler ¹H spin systems are available currently.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>nspins</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]) – The number of spins the system should comprise.</p></li>
+<li><p><strong>ncouplings</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The total number of couplings featured in the spin system. This must be
+a value satisfying <code class="docutils literal notranslate"><span class="pre">ncouplings</span> <span class="pre">&lt;=</span> <span class="pre">int(0.5</span> <span class="pre">*</span> <span class="pre">(nspins</span> <span class="pre">*</span> <span class="pre">(nspins</span> <span class="pre">-</span> <span class="pre">1)))</span></code>
+There is a possibility that the final spin system will have fewer couplings
+than those stated if the random network of couplings does not satisfy
+the constraint placed by <code class="docutils literal notranslate"><span class="pre">max_couplings</span></code>.</p></li>
+<li><p><strong>max_couplings</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The largest possible number of coupling interactions any particular spin
+may have.</p></li>
+<li><p><strong>shifts_range</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The smallest and greatest values of chemical shift any particular spin
+may have.</p></li>
+<li><p><strong>couplings_range</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The smallest and greatest values of scalar coupling any particular
+interaction may have.</p></li>
+<li><p><strong>field</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – See <code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></p></li>
+<li><p><strong>temperature</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – See <code class="xref py py-meth docutils literal notranslate"><span class="pre">__init__()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#nmr_sims.spin_system.SpinSystem" title="nmr_sims.spin_system.SpinSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpinSystem</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>

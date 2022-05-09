@@ -47,7 +47,7 @@
 <span></span><span class="c1"># spin_system.py</span>
 <span class="c1"># Simon Hulse</span>
 <span class="c1"># simon.hulse@chem.ox.ac.uk</span>
-<span class="c1"># Last Edited: Fri 25 Feb 2022 18:35:38 GMT</span>
+<span class="c1"># Last Edited: Mon 09 May 2022 17:14:32 BST</span>
 
 <span class="sa">r</span><span class="sd">&quot;&quot;&quot;This module provides the :py:class:`SpinSystem` class, allowing specification</span>
 <span class="sd">of a specific spin system according to the nuclear idenitites, isotropic chemical</span>
@@ -58,14 +58,22 @@
 <span class="sd">the equilibrium operator and Hamiltonians required.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
 <span class="kn">from</span> <span class="nn">nmr_sims.nuclei</span> <span class="kn">import</span> <span class="n">Nucleus</span>
 <span class="kn">from</span> <span class="nn">nmr_sims._operators</span> <span class="kn">import</span> <span class="n">CartesianBasis</span><span class="p">,</span> <span class="n">Operator</span>
 <span class="kn">from</span> <span class="nn">nmr_sims</span> <span class="kn">import</span> <span class="n">_sanity</span>
 
 
-<span class="c1"># Currently only applicable for homonuclear systems</span>
+<span class="k">def</span> <span class="nf">triangle</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+
 <div class="viewcode-block" id="SpinSystem"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem">[docs]</a><span class="k">class</span> <span class="nc">SpinSystem</span><span class="p">(</span><span class="n">CartesianBasis</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Object representing a particular spin system.</span>
 
@@ -75,7 +83,7 @@
     <span class="n">kB</span> <span class="o">=</span> <span class="mf">1.380649e-23</span>
     <span class="n">hbar</span> <span class="o">=</span> <span class="mf">1.054571817e-34</span>
 
-<div class="viewcode-block" id="SpinSystem.__init__"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">spins</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span>
         <span class="n">default_nucleus</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Nucleus</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1H&quot;</span><span class="p">,</span>
@@ -191,7 +199,112 @@
             <span class="p">[(</span><span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">I</span> <span class="o">==</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">I</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spins</span><span class="p">]):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Spin-1/2 nuclei are only supported currently!&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Spin-1/2 nuclei are only supported currently!&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpinSystem.new_random"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.new_random">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">new_random</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">nspins</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">ncouplings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_couplings</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">shifts_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>
+        <span class="n">couplings_range</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">),</span>
+        <span class="n">field</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;500MHz&quot;</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;298K&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpinSystem</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Create a new instance with random chemical shifts and offsets.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            Only homonucler ¹H spin systems are available currently.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nspins</span>
+<span class="sd">            The number of spins the system should comprise.</span>
+
+<span class="sd">        ncouplings</span>
+<span class="sd">            The total number of couplings featured in the spin system. This must be</span>
+<span class="sd">            a value satisfying ``ncouplings &lt;= int(0.5 * (nspins * (nspins - 1)))``</span>
+<span class="sd">            There is a possibility that the final spin system will have fewer couplings</span>
+<span class="sd">            than those stated if the random network of couplings does not satisfy</span>
+<span class="sd">            the constraint placed by ``max_couplings``.</span>
+
+<span class="sd">        max_couplings</span>
+<span class="sd">            The largest possible number of coupling interactions any particular spin</span>
+<span class="sd">            may have.</span>
+
+<span class="sd">        shifts_range</span>
+<span class="sd">            The smallest and greatest values of chemical shift any particular spin</span>
+<span class="sd">            may have.</span>
+
+<span class="sd">        couplings_range</span>
+<span class="sd">            The smallest and greatest values of scalar coupling any particular</span>
+<span class="sd">            interaction may have.</span>
+
+<span class="sd">        field</span>
+<span class="sd">            See :py:meth:`__init__`</span>
+
+<span class="sd">        temperature</span>
+<span class="sd">            See :py:meth:`__init__`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">nspins</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">nspins</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`nspins` is invalid&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ncouplings</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">ncouplings</span> <span class="o">&lt;=</span> <span class="n">triangle</span><span class="p">(</span><span class="n">nspins</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`ncouplings` should be a positive int no greater than &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">triangle</span><span class="p">(</span><span class="n">nspins</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">max_couplings</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># No chance of this being exceeded.</span>
+            <span class="n">max_couplings</span> <span class="o">=</span> <span class="n">nspins</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_couplings</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">max_couplings</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`max_couplings` should be a positive int or None.&quot;</span><span class="p">)</span>
+
+        <span class="n">valid_range</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">obj</span><span class="p">:</span> <span class="p">(</span>
+            <span class="nb">isinstance</span><span class="p">(</span><span class="n">shifts_range</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">shifts_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span>
+            <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">shifts_range</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">valid_range</span><span class="p">(</span><span class="n">shifts_range</span><span class="p">):</span>
+            <span class="n">shifts_range</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">shifts_range</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">shifts_range</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`shifts_range` is invalid.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">valid_range</span><span class="p">(</span><span class="n">couplings_range</span><span class="p">):</span>
+            <span class="n">couplings_range</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">couplings_range</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">couplings_range</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`couplings_range` is invalid.&quot;</span><span class="p">)</span>
+
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">gnm_random_graph</span><span class="p">(</span><span class="n">nspins</span><span class="p">,</span> <span class="n">ncouplings</span><span class="p">)</span>
+        <span class="n">overconnected_nodes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">node</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">degree</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">degree</span> <span class="k">if</span> <span class="n">degree</span> <span class="o">&gt;</span> <span class="n">max_couplings</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">overconnected_nodes</span><span class="p">:</span>
+            <span class="k">while</span> <span class="n">graph</span><span class="o">.</span><span class="n">degree</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_couplings</span><span class="p">:</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">graph</span><span class="p">[</span><span class="n">node</span><span class="p">]]))</span>
+
+        <span class="n">spin_system</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nspins</span><span class="p">):</span>
+            <span class="n">spin_system</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;shift&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">shifts_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">shifts_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+            <span class="n">spin_system</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;couplings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">:</span>
+            <span class="n">spin_system</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="s2">&quot;couplings&quot;</span><span class="p">][</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">couplings_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">couplings_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                <span class="n">decimals</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">spin_system</span><span class="p">)</span></div>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">inverse_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -426,6 +539,24 @@
 <span class="sd">            be put on the nucleus.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sum</span><span class="p">(</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">nucleus</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">ss</span> <span class="o">=</span> <span class="n">SpinSystem</span><span class="o">.</span><span class="n">new_random</span><span class="p">(</span><span class="n">nspins</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">ncouplings</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">max_couplings</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">nmr_sims.experiments.pa</span> <span class="kn">import</span> <span class="n">PulseAcquireSimulation</span>
+
+    <span class="n">sim</span> <span class="o">=</span> <span class="n">PulseAcquireSimulation</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="mi">4096</span><span class="p">,</span> <span class="s2">&quot;10ppm&quot;</span><span class="p">,</span> <span class="s2">&quot;5ppm&quot;</span><span class="p">)</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+    <span class="n">sh</span><span class="p">,</span> <span class="n">sp</span><span class="p">,</span> <span class="n">lab</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="n">zf_factor</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+    <span class="n">mpl</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;tkAgg&quot;</span><span class="p">)</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">sh</span><span class="p">,</span> <span class="n">sp</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">lab</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 
             <div class="clearer"></div>

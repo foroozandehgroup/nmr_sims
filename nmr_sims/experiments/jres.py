@@ -1,7 +1,7 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 09 May 2022 11:59:24 BST
+# Last Edited: Mon 09 May 2022 12:02:01 BST
 
 """Module for simulating homonuclear J-Resolved (2DJ) experiments.
 
@@ -101,7 +101,7 @@ class JresSimulation(Simulation):
     def fid(
         self,
         lb: Optional[Tuple[float, float]] = None,
-    ) -> Tuple[np.ndarray, np.ndarray, Tuple[str, str]]:
+    ) -> Tuple[Tuple[np.ndarray, np.ndarray], np.ndarray, Tuple[str, str]]:
         """Return the FID associated with a simulation.
 
         Parameters
@@ -143,8 +143,8 @@ class JresSimulation(Simulation):
     def spectrum(
         self,
         zf_factor: Tuple[float, float] = [1.0, 1.0],
-        lb: Tuple[float, float] = None,
-    ) -> Tuple[np.ndarray, np.ndarray, Tuple[float, float]]:
+        lb: Optional[Tuple[float, float]] = None,
+    ) -> Tuple[Tuple[np.ndarray, np.ndarray], np.ndarray, Tuple[float, float]]:
         """Return the spectrum associated with a simulation.
 
         Parameters

@@ -1,7 +1,7 @@
 # pa.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 09 May 2022 11:55:56 BST
+# Last Edited: Mon 09 May 2022 12:00:48 BST
 
 """Module for simulating 1D pulse-acquire experiments.
 
@@ -153,7 +153,7 @@ class PulseAcquireSimulation(Simulation):
         lb
             Line-broadening factor for exponential window function. Default
             option (``None``), will apply an exponential window such that the final
-            point will be shrunk to 1/100 of its original value.
+            point will be shrunk to 1/1000 of its original value.
 
         Returns
         -------
@@ -164,7 +164,7 @@ class PulseAcquireSimulation(Simulation):
             The spectrum generated from the FID.
 
         labels
-            Axis labels for plotting purposes.
+            Axis label for plotting purposes.
         """
         sw, off, pts, sfo = (
             self.sweep_widths[0], self.offsets[0], self.points[0], self.sfo[0],

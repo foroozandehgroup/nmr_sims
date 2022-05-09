@@ -5,4 +5,3 @@ nmr_sims.experiments.jres
 
 .. autoclass:: nmr_sims.experiments.jres.JresSimulation
    :inherited-members:
-   :special-members: __init__

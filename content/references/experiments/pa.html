@@ -84,32 +84,6 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="nmr_sims.experiments.pa.PulseAcquireSimulation.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spin_system</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sweep_width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1H'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pulse_phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reciever_phase</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">1.5707963267948966</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/nmr_sims/experiments/pa.html#PulseAcquireSimulation.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.experiments.pa.PulseAcquireSimulation.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialise a simulaion object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>spin_system</strong> (<a class="reference internal" href="../spin_system.html#nmr_sims.spin_system.SpinSystem" title="nmr_sims.spin_system.SpinSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpinSystem</span></code></a>) – The spin system to perform the simulation on.</p></li>
-<li><p><strong>points</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – The number of points sampled.</p></li>
-<li><p><strong>sweep_width</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The sweep width.</p></li>
-<li><p><strong>offset</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The transmitter offset.</p></li>
-<li><p><strong>channel</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <a class="reference internal" href="../nuclei.html#nmr_sims.nuclei.Nucleus" title="nmr_sims.nuclei.Nucleus"><code class="xref py py-class docutils literal notranslate"><span class="pre">Nucleus</span></code></a>]) – The nucelus targeted by the channel.</p></li>
-<li><p><strong>pulse_phase</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – The phase of the 90 degree pulse.</p></li>
-<li><p><strong>reciever_phase</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – <p>The phase of the reciever. Common values are:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">0.0</span></code> : <img class="math" src="../../../_images/math/888f7c323ac0341871e867220ae2d76467d74d6e.png" alt="x"/></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">np.pi</span> <span class="pre">/</span> <span class="pre">2</span></code> : <img class="math" src="../../../_images/math/1b5e577d6216dca3af7d87aa122a0b9b360d6cb3.png" alt="y"/></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">np.pi</span></code> : <img class="math" src="../../../_images/math/7d6495fa9cfffb1558b902cbe5b8f24f76e03773.png" alt="-x"/></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-np.pi</span> <span class="pre">/</span> <span class="pre">2</span></code> : <img class="math" src="../../../_images/math/75646b2d71c643d03a33c54c1e6def2f2ba27395.png" alt="-y"/></p></li>
-</ul>
-</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="nmr_sims.experiments.pa.PulseAcquireSimulation.fid">
 <span class="sig-name descname"><span class="pre">fid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/nmr_sims/experiments/pa.html#PulseAcquireSimulation.fid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.experiments.pa.PulseAcquireSimulation.fid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the FID associated with a simulation.</p>

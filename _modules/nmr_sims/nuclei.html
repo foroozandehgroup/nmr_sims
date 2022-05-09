@@ -59,7 +59,7 @@
 <div class="viewcode-block" id="Nucleus"><a class="viewcode-back" href="../../content/references/nuclei.html#nmr_sims.nuclei.Nucleus">[docs]</a><span class="k">class</span> <span class="nc">Nucleus</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;An object representing the key properties of a nucleus for NMR simulation.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Nucleus.__init__"><a class="viewcode-back" href="../../content/references/nuclei.html#nmr_sims.nuclei.Nucleus.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gamma</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">multiplicity</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Create a ``Nucelus`` instance.</span>
 
 <span class="sd">        Parameters</span>
@@ -83,7 +83,7 @@
 <span class="sd">            is equivalent to :math:`2I + 1`, where :math:`I` in the nuclear spin quantum</span>
 <span class="sd">            number.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">locals</span><span class="p">())</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssname</span>

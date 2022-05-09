@@ -101,17 +101,17 @@ protons with the following properties:</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Setting <code class="docutils literal notranslate"><span class="pre">&quot;nucleus&quot;</span> <span class="pre">=</span> <span class="pre">&quot;1H&quot;</span></code> for each spin is not strictly necessary, as by default this is
-assumed (see the <code class="docutils literal notranslate"><span class="pre">default_nucleus</span></code> argument). For a description on specifying nuclei, look
-at <a class="reference internal" href="references/nuclei.html#module-nmr_sims.nuclei" title="nmr_sims.nuclei"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nuclei</span></code></a>.</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">&quot;nucleus&quot;</span> <span class="pre">=</span> <span class="pre">&quot;1H&quot;</span></code> for each spin is not strictly necessary, as by
+default this is assumed (see the <code class="docutils literal notranslate"><span class="pre">default_nucleus</span></code> argument). For a
+description on specifying nuclei, look at <a class="reference internal" href="references/nuclei.html#module-nmr_sims.nuclei" title="nmr_sims.nuclei"><code class="xref py py-mod docutils literal notranslate"><span class="pre">nuclei</span></code></a>.</p>
 </section>
 <section id="running-a-simulation">
 <h2>Running a Simulation<a class="headerlink" href="#running-a-simulation" title="Permalink to this headline">¶</a></h2>
-<p>To run a simulation, you need to import the corresponding class, which will be found in
-one of the submodules within <a class="reference internal" href="references/experiments/index.html#module-nmr_sims.experiments" title="nmr_sims.experiments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">experiments</span></code></a>. For example, to perform a
-simple pulse-acquire experiment, you can use the
-<a class="reference internal" href="references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation" title="nmr_sims.experiments.pa.PulseAcquireSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">PulseAcquireSimulation</span></code></a> class, providing the spin system,
-along with required expriment parameters:</p>
+<p>To run a simulation, you need to import the corresponding class, which will be
+found in one of the submodules within <a class="reference internal" href="references/experiments/index.html#module-nmr_sims.experiments" title="nmr_sims.experiments"><code class="xref py py-mod docutils literal notranslate"><span class="pre">experiments</span></code></a>. For
+example, to perform a simple pulse-acquire experiment, you can use the
+<a class="reference internal" href="references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation" title="nmr_sims.experiments.pa.PulseAcquireSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">PulseAcquireSimulation</span></code></a> class, providing
+the spin system, along with required expriment parameters:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nmr_sims.experiments.pa</span> <span class="kn">import</span> <span class="n">PulseAcquireSimulation</span>
 <span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
 
@@ -136,9 +136,11 @@ along with required expriment parameters:</p>
 <span class="c1"># * Points sampled: 8192 (F1)</span>
 </pre></div>
 </div>
-<p>The FID generated can then be accessed by the <code class="xref py py-meth docutils literal notranslate"><span class="pre">fid()</span></code>
-property. A process spectrum, along with chemical shifts and axis labels can be generated with the
-<a class="reference internal" href="references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum" title="nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum"><code class="xref py py-meth docutils literal notranslate"><span class="pre">spectrum()</span></code></a> method.</p>
+<p>The FID generated can then be accessed by the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">fid()</span></code> property. A
+processed spectrum, along with chemical shifts and axis labels can be generated
+with the <a class="reference internal" href="references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum" title="nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum"><code class="xref py py-meth docutils literal notranslate"><span class="pre">spectrum()</span></code></a>
+method.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">nmr_sims.experiments.pa</span> <span class="kn">import</span> <span class="n">PulseAcquireSimulation</span>
 <span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
@@ -147,7 +149,7 @@ property. A process spectrum, along with chemical shifts and axis labels can be 
 <span class="c1"># --snip --</span>
 
 <span class="n">pa_simulation</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
-<span class="c1"># Zero fill to 8192 points by setting zf_factor to 2</span>
+<span class="c1"># Zero fill to 16k points by setting zf_factor to 2</span>
 <span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">pa_simulation</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="n">zf_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -158,8 +160,9 @@ property. A process spectrum, along with chemical shifts and axis labels can be 
 </pre></div>
 </div>
 <img alt="../_images/pa_spectrum.png" src="../_images/pa_spectrum.png" />
-<p>As a second example, a J-Resolved (2DJ) experiment simulation could be performed using the
-<a class="reference internal" href="references/experiments/jres.html#nmr_sims.experiments.jres.JresSimulation" title="nmr_sims.experiments.jres.JresSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">JresSimulation</span></code></a> class:</p>
+<p>As a second example, a J-Resolved (2DJ) experiment simulation could be
+performed using the <a class="reference internal" href="references/experiments/jres.html#nmr_sims.experiments.jres.JresSimulation" title="nmr_sims.experiments.jres.JresSimulation"><code class="xref py py-class docutils literal notranslate"><span class="pre">JresSimulation</span></code></a>
+class:</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">nmr_sims.experiments.jres</span> <span class="kn">import</span> <span class="n">JresSimulation</span>
 <span class="kn">from</span> <span class="nn">nmr_sims.spin_system</span> <span class="kn">import</span> <span class="n">SpinSystem</span>
@@ -194,19 +197,24 @@ property. A process spectrum, along with chemical shifts and axis labels can be 
 <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="mi">128</span><span class="p">,</span> <span class="mi">512</span><span class="p">]</span>
 <span class="n">channel</span> <span class="o">=</span> <span class="s2">&quot;1H&quot;</span>
 
-<span class="n">jres_simulation</span> <span class="o">=</span> <span class="n">JresSimulation</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">sw</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span>
-<span class="n">jres_simulation</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
-<span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">jres_simulation</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="n">zf_factor</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># Zero pad both dimensions by a factor of 4</span>
+<span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">jres_simulation</span><span class="o">.</span><span class="n">spectrum</span><span class="p">(</span><span class="n">zf_factor</span><span class="o">=</span><span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">])</span>
 
+<span class="c1"># Contour level specification</span>
 <span class="n">nlevels</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="n">base</span> <span class="o">=</span> <span class="mf">0.015</span>
 <span class="n">factor</span> <span class="o">=</span> <span class="mf">1.4</span>
 <span class="n">levels</span> <span class="o">=</span> <span class="p">[</span><span class="n">base</span> <span class="o">*</span> <span class="p">(</span><span class="n">factor</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nlevels</span><span class="p">)]</span>
 
+<span class="c1"># Create the figure</span>
+<span class="c1"># N.B. spectrum() returns the data such that axis 0 (rows) correspond to F1 and</span>
+<span class="c1"># axis 1 (columns) correspond to F2. By convention in NMR, the direct dimension</span>
+<span class="c1"># is typically plotted on the x-axis in figures, so we need to have shifts[1] as</span>
+<span class="c1"># x and shifts[0] as y. Also, everything has to be transposed.</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="o">*</span><span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">real</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">shifts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">shifts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">spectrum</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;jres_spectrum.png&quot;</span><span class="p">)</span>

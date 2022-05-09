@@ -52,18 +52,18 @@ Such a spin system can be created as follows:
         }
     )
 
-Setting ``"nucleus" = "1H"`` for each spin is not strictly necessary, as by default this is
-assumed (see the ``default_nucleus`` argument). For a description on specifying nuclei, look
-at :py:mod:`~nmr_sims.nuclei`.
+Setting ``"nucleus" = "1H"`` for each spin is not strictly necessary, as by
+default this is assumed (see the ``default_nucleus`` argument). For a
+description on specifying nuclei, look at :py:mod:`~nmr_sims.nuclei`.
 
 Running a Simulation
 ^^^^^^^^^^^^^^^^^^^^
 
-To run a simulation, you need to import the corresponding class, which will be found in
-one of the submodules within :py:mod:`~nmr_sims.experiments`. For example, to perform a
-simple pulse-acquire experiment, you can use the
-:py:class:`~nmr_sims.experiments.pa.PulseAcquireSimulation` class, providing the spin system,
-along with required expriment parameters:
+To run a simulation, you need to import the corresponding class, which will be
+found in one of the submodules within :py:mod:`~nmr_sims.experiments`. For
+example, to perform a simple pulse-acquire experiment, you can use the
+:py:class:`~nmr_sims.experiments.pa.PulseAcquireSimulation` class, providing
+the spin system, along with required expriment parameters:
 
 .. code:: python3
 
@@ -90,9 +90,11 @@ along with required expriment parameters:
     # * Channel 1: ¹H, offset: 2050.000 Hz
     # * Points sampled: 8192 (F1)
 
-The FID generated can then be accessed by the :py:meth:`~nmr_sims.experiment.pa.PulseAcquireSimulation.fid`
-property. A process spectrum, along with chemical shifts and axis labels can be generated with the
-:py:meth:`~nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum` method.
+The FID generated can then be accessed by the
+:py:meth:`~nmr_sims.experiment.pa.PulseAcquireSimulation.fid` property. A
+processed spectrum, along with chemical shifts and axis labels can be generated
+with the :py:meth:`~nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum`
+method.
 
 .. code:: python3
 
@@ -104,7 +106,7 @@ property. A process spectrum, along with chemical shifts and axis labels can be 
     # --snip --
 
     pa_simulation.simulate()
-    # Zero fill to 8192 points by setting zf_factor to 2
+    # Zero fill to 16k points by setting zf_factor to 2
     shifts, spectrum, label = pa_simulation.spectrum(zf_factor=2)
 
     fig, ax = plt.subplots()
@@ -115,8 +117,9 @@ property. A process spectrum, along with chemical shifts and axis labels can be 
 
 .. image:: pa_spectrum.png
 
-As a second example, a J-Resolved (2DJ) experiment simulation could be performed using the
-:py:class:`~nmr_sims.experiments.jres.JresSimulation` class:
+As a second example, a J-Resolved (2DJ) experiment simulation could be
+performed using the :py:class:`~nmr_sims.experiments.jres.JresSimulation`
+class:
 
 .. code:: python3
 
@@ -154,19 +157,24 @@ As a second example, a J-Resolved (2DJ) experiment simulation could be performed
     points = [128, 512]
     channel = "1H"
 
-    jres_simulation = JresSimulation(system, points, sw, offset, channel)
-    jres_simulation.simulate()
-    shifts, spectrum, labels = jres_simulation.spectrum(zf_factor=2)
+    # Zero pad both dimensions by a factor of 4
+    shifts, spectrum, labels = jres_simulation.spectrum(zf_factor=[4.0, 4.0])
 
+    # Contour level specification
     nlevels = 6
     base = 0.015
     factor = 1.4
     levels = [base * (factor ** i) for i in range(nlevels)]
 
+    # Create the figure
+    # N.B. spectrum() returns the data such that axis 0 (rows) correspond to F1 and
+    # axis 1 (columns) correspond to F2. By convention in NMR, the direct dimension
+    # is typically plotted on the x-axis in figures, so we need to have shifts[1] as
+    # x and shifts[0] as y. Also, everything has to be transposed.
     fig, ax = plt.subplots()
-    ax.contour(*shifts, spectrum.real, levels=levels)
-    ax.set_xlabel(labels[0])
-    ax.set_ylabel(labels[1])
+    ax.contour(shifts[1].T, shifts[0].T, spectrum.real.T, levels=levels)
+    ax.set_xlabel(labels[1])
+    ax.set_ylabel(labels[0])
     ax.set_xlim(reversed(ax.get_xlim()))
     ax.set_ylim(reversed(ax.get_ylim()))
     fig.savefig("jres_spectrum.png")

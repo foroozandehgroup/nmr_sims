@@ -1,7 +1,7 @@
 # jres.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 09 May 2022 11:35:41 BST
+# Last Edited: Mon 09 May 2022 11:59:24 BST
 
 """Module for simulating homonuclear J-Resolved (2DJ) experiments.
 
@@ -100,16 +100,16 @@ class JresSimulation(Simulation):
 
     def fid(
         self,
-        lb: Tuple[float, float] = [0.0, 0.0],
+        lb: Optional[Tuple[float, float]] = None,
     ) -> Tuple[np.ndarray, np.ndarray, Tuple[str, str]]:
         """Return the FID associated with a simulation.
 
         Parameters
         ----------
         lb
-            Line-broadening factor for exponential window function in each dimension.
-            Default option (``[0.0, 0.0]``), will lead to no damping being be applied
-            to the FID (akin to a situation where no relaxation has taken place).
+            Line-broadening factor for exponential window function. Default
+            option (``None``), will apply an exponential window such that the final
+            point in each dimension will be shrunk to 1/1000 of its original value.
 
         Returns
         -------
@@ -130,6 +130,8 @@ class JresSimulation(Simulation):
             np.linspace(0, (pts2 - 1) / sw2, pts2),
             indexing="ij",
         )
+        if lb is None:
+            lb = [-np.log(0.001) / (np.pi * (p - 1)) for p in self.points]
         em = np.einsum(
             "i,j->ij",
             np.exp(-np.pi * np.arange(pts1) * lb[0]),
@@ -141,7 +143,7 @@ class JresSimulation(Simulation):
     def spectrum(
         self,
         zf_factor: Tuple[float, float] = [1.0, 1.0],
-        lb: Tuple[float, float] = [5.0, 5.0],
+        lb: Tuple[float, float] = None,
     ) -> Tuple[np.ndarray, np.ndarray, Tuple[float, float]]:
         """Return the spectrum associated with a simulation.
 
@@ -154,7 +156,9 @@ class JresSimulation(Simulation):
             should be ``>= 1.0``.
 
         lb
-            Line-broadening factor for exponential window function in each dimension.
+            Line-broadening factor for exponential window function. Default
+            option (``None``), will apply an exponential window such that the final
+            point in each dimension will be shrunk to 1/1000 of its original value.
 
         Returns
         -------
@@ -181,16 +185,10 @@ class JresSimulation(Simulation):
             ),
             indexing="ij",
         )
+
         _, fid, _ = self.fid(lb=lb)
-        import matplotlib as mpl
-        mpl.use("tkAgg")
-        import matplotlib.pyplot as plt
-        fig = plt.figure()
-        ax = fig.add_subplot(projection='3d')
-        x, y = np.meshgrid(*[np.arange(s) for s in fid.shape], indexing="ij")
-        ax.plot_wireframe(x, y, fid)
-        plt.show()
         fid[0, 0] /= 2
+
         spectrum = np.abs(
             np.flip(
                 fft.fftshift(
@@ -229,7 +227,7 @@ if __name__ == "__main__":
     sim = JresSimulation(spin_system, points, sweep_widths, offset, channel)
     sim.simulate()
     # Extract spectrum and chemical shifts
-    shifts, spectrum, labels = sim.spectrum(zf_factor=[4.0, 4.0], lb=[0.03, 0.01])
+    shifts, spectrum, labels = sim.spectrum(zf_factor=[4.0, 4.0])
 
     nlevels = 10
     baselev = 0.02

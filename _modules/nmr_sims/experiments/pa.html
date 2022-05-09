@@ -47,17 +47,15 @@
 <span></span><span class="c1"># pa.py</span>
 <span class="c1"># Simon Hulse</span>
 <span class="c1"># simon.hulse@chem.ox.ac.uk</span>
-<span class="c1"># Last Edited: Wed 23 Mar 2022 17:46:29 GMT</span>
+<span class="c1"># Last Edited: Mon 09 May 2022 11:55:56 BST</span>
 
 <span class="sd">&quot;&quot;&quot;Module for simulating 1D pulse-acquire experiments.</span>
 
 <span class="sd">**Pulse Sequence:**</span>
 
 <span class="sd">.. image:: ../figures/pa/pa.png</span>
-
-<span class="sd">The result of this pulse sequence is a pair of amplitude-modulated FIDs.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">fft</span>
@@ -149,33 +147,88 @@
             <span class="n">fid</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">expectation</span><span class="p">(</span><span class="n">detect</span><span class="p">)</span> <span class="o">*</span> <span class="n">recphase</span>
             <span class="n">rho</span> <span class="o">=</span> <span class="n">rho</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">evol</span><span class="p">)</span>
 
-        <span class="n">fid</span> <span class="o">*=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="n">pts</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">fid</span>
 
-    <span class="k">def</span> <span class="nf">_fetch_fid</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<div class="viewcode-block" id="PulseAcquireSimulation.fid"><a class="viewcode-back" href="../../../content/references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation.fid">[docs]</a>    <span class="k">def</span> <span class="nf">fid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return the FID associated with a simulation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lb</span>
+<span class="sd">            Line-broadening factor for exponential window function. Default</span>
+<span class="sd">            option (``None``), will apply an exponential window such that the final</span>
+<span class="sd">            point will be shrunk to 1/1000 of its original value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        timepoints</span>
+<span class="sd">            The timepoints sampled.</span>
+
+<span class="sd">        fid</span>
+<span class="sd">            The FID sampled.</span>
+
+<span class="sd">        labels</span>
+<span class="sd">            Axis label for plotting purposes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pts</span><span class="p">,</span> <span class="n">sw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_widths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">tp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">pts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">sw</span><span class="p">,</span> <span class="n">pts</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fid</span>
 
-    <span class="k">def</span> <span class="nf">_fetch_spectrum</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">zf_factor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">shift_frequency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ppm&quot;</span>
+        <span class="k">if</span> <span class="n">lb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lb</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="n">pts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">em</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">*</span> <span class="n">lb</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">tp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fid</span> <span class="o">*</span> <span class="n">em</span><span class="p">,</span> <span class="s2">&quot;$t$ (s)&quot;</span></div>
+
+<div class="viewcode-block" id="PulseAcquireSimulation.spectrum"><a class="viewcode-back" href="../../../content/references/experiments/pa.html#nmr_sims.experiments.pa.PulseAcquireSimulation.spectrum">[docs]</a>    <span class="k">def</span> <span class="nf">spectrum</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">zf_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">lb</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return the spectrum associated with a simulation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        zf_factor</span>
+<span class="sd">            The ratio between the number of points in the final spectrum,</span>
+<span class="sd">            generated by zero-filling the FID, and the FID itself in each dimension.</span>
+<span class="sd">            ``1.0`` (default) means no zero-filling is applied. Should be ``&gt;= 1.0``.</span>
+
+<span class="sd">        lb</span>
+<span class="sd">            Line-broadening factor for exponential window function. Default</span>
+<span class="sd">            option (``None``), will apply an exponential window such that the final</span>
+<span class="sd">            point will be shrunk to 1/100 of its original value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        shifts</span>
+<span class="sd">            The chemical shifts sampled.</span>
+
+<span class="sd">        spectrum</span>
+<span class="sd">            The spectrum generated from the FID.</span>
+
+<span class="sd">        labels</span>
+<span class="sd">            Axis labels for plotting purposes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sw</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">sfo</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sweep_widths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfo</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
         <span class="p">)</span>
-        <span class="n">fid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fid</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">fid</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fid</span><span class="p">(</span><span class="n">lb</span><span class="o">=</span><span class="n">lb</span><span class="p">)</span>
         <span class="n">fid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/=</span> <span class="mi">2</span>
-        <span class="n">shifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">((</span><span class="n">sw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">sw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="n">pts</span> <span class="o">*</span> <span class="n">zf_factor</span><span class="p">)</span> <span class="o">/</span> <span class="n">sfo</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">pts</span> <span class="o">*</span> <span class="n">zf_factor</span><span class="p">)</span>
+        <span class="n">shifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">((</span><span class="n">sw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="o">-</span><span class="p">(</span><span class="n">sw</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">off</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span> <span class="o">/</span> <span class="n">sfo</span>
         <span class="n">spectrum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span>
             <span class="n">fft</span><span class="o">.</span><span class="n">fftshift</span><span class="p">(</span>
                 <span class="n">fft</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span>
                     <span class="n">fid</span><span class="p">,</span>
-                    <span class="n">pts</span> <span class="o">*</span> <span class="n">zf_factor</span><span class="p">,</span>
+                    <span class="n">shape</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ssname</span><span class="si">}</span><span class="s2"> (ppm)&quot;</span></div>
+        <span class="k">return</span> <span class="n">shifts</span><span class="p">,</span> <span class="n">spectrum</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ssname</span><span class="si">}</span><span class="s2"> (ppm)&quot;</span></div></div>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
@@ -201,6 +254,7 @@
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">shifts</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">spectrum</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 

@@ -47,7 +47,7 @@
 <span></span><span class="c1"># pa.py</span>
 <span class="c1"># Simon Hulse</span>
 <span class="c1"># simon.hulse@chem.ox.ac.uk</span>
-<span class="c1"># Last Edited: Mon 09 May 2022 11:55:56 BST</span>
+<span class="c1"># Last Edited: Mon 09 May 2022 12:00:48 BST</span>
 
 <span class="sd">&quot;&quot;&quot;Module for simulating 1D pulse-acquire experiments.</span>
 
@@ -199,7 +199,7 @@
 <span class="sd">        lb</span>
 <span class="sd">            Line-broadening factor for exponential window function. Default</span>
 <span class="sd">            option (``None``), will apply an exponential window such that the final</span>
-<span class="sd">            point will be shrunk to 1/100 of its original value.</span>
+<span class="sd">            point will be shrunk to 1/1000 of its original value.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -210,7 +210,7 @@
 <span class="sd">            The spectrum generated from the FID.</span>
 
 <span class="sd">        labels</span>
-<span class="sd">            Axis labels for plotting purposes.</span>
+<span class="sd">            Axis label for plotting purposes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sw</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">pts</span><span class="p">,</span> <span class="n">sfo</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sweep_widths</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">offsets</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">sfo</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>

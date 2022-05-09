@@ -80,12 +80,66 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.experiments.hsqc.HSQCSimulation.fid">
+<span class="sig-name descname"><span class="pre">fid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/nmr_sims/experiments/hsqc.html#HSQCSimulation.fid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.experiments.hsqc.HSQCSimulation.fid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the FID associated with a simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lb</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – Line-broadening factor for exponential window function. Default
+option (<code class="docutils literal notranslate"><span class="pre">None</span></code>), will apply an exponential window such that the final
+point in each dimension will be shrunk to 1/1000 of its original value.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>timepoints</em> – The timepoints sampled.</p></li>
+<li><p><em>fid</em> – The FID sampled.</p></li>
+<li><p><em>labels</em> – Axis labels for plotting purposes.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="nmr_sims.experiments.hsqc.HSQCSimulation.simulate">
 <span class="sig-name descname"><span class="pre">simulate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nmr_sims.experiments.hsqc.HSQCSimulation.simulate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Simulate the NMR experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.experiments.hsqc.HSQCSimulation.spectrum">
+<span class="sig-name descname"><span class="pre">spectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zf_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1.0,</span> <span class="pre">1.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/nmr_sims/experiments/hsqc.html#HSQCSimulation.spectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.experiments.hsqc.HSQCSimulation.spectrum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the spectrum associated with a simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zf_factor</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – The ratio between the number of points in the final spectrum,
+generated by zero-filling the FID, and the FID itself in each dimension.
+<code class="docutils literal notranslate"><span class="pre">[1.0,</span> <span class="pre">1.0]</span></code> (default) means no zero-filling is applied. Each value
+should be <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">1.0</span></code>.</p></li>
+<li><p><strong>lb</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]) – Line-broadening factor for exponential window function. Default
+option (<code class="docutils literal notranslate"><span class="pre">None</span></code>), will apply an exponential window such that the final
+point in each dimension will be shrunk to 1/1000 of its original value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><em>shifts</em> – The chemical shifts sampled.</p></li>
+<li><p><em>spectrum</em> – The spectrum generated from the FID.</p></li>
+<li><p><em>labels</em> – Axis labels for plotting purposes.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>

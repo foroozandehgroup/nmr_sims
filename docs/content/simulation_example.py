@@ -1,8 +1,3 @@
-# simulation_example.py
-# Simon Hulse
-# simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 28 Feb 2022 15:32:08 GMT
-
 import matplotlib.pyplot as plt
 from nmr_sims.experiments.jres import JresSimulation
 from nmr_sims.experiments.pa import PulseAcquireSimulation
@@ -41,7 +36,7 @@ channel = "1H"
 
 pa_simulation = PulseAcquireSimulation(system, points, sw, offset, channel)
 pa_simulation.simulate()
-# Zero fill to 8192 points by setting zf_factor to 2
+# Zero fill to 16k points by setting zf_factor to 2
 shifts, spectrum, label = pa_simulation.spectrum(zf_factor=2)
 
 fig, ax = plt.subplots()
@@ -58,17 +53,24 @@ channel = "1H"
 
 jres_simulation = JresSimulation(system, points, sw, offset, channel)
 jres_simulation.simulate()
-shifts, spectrum, labels = jres_simulation.spectrum(zf_factor=2)
+# Zero pad both dimensions by a factor of 4
+shifts, spectrum, labels = jres_simulation.spectrum(zf_factor=[4.0, 4.0])
 
+# Contour level specification
 nlevels = 6
 base = 0.015
 factor = 1.4
 levels = [base * (factor ** i) for i in range(nlevels)]
 
+# Create the figure
+# N.B. spectrum() returns the data such that axis 0 (rows) correspond to F1 and
+# axis 1 (columns) correspond to F2. By convention in NMR, the direct dimension
+# is typically plotted on the x-axis in figures, so we need to have shifts[1] as
+# x and shifts[0] as y. Also, everything has to be transposed.
 fig, ax = plt.subplots()
-ax.contour(*shifts, spectrum.real, levels=levels)
-ax.set_xlabel(labels[0])
-ax.set_ylabel(labels[1])
+ax.contour(shifts[1].T, shifts[0].T, spectrum.real.T, levels=levels)
+ax.set_xlabel(labels[1])
+ax.set_ylabel(labels[0])
 ax.set_xlim(reversed(ax.get_xlim()))
 ax.set_ylim(reversed(ax.get_ylim()))
 fig.savefig("jres_spectrum.png")

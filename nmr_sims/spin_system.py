@@ -1,7 +1,7 @@
 # spin_system.py
 # Simon Hulse
 # simon.hulse@chem.ox.ac.uk
-# Last Edited: Mon 09 May 2022 17:14:32 BST
+# Last Edited: Fri 13 May 2022 10:55:09 BST
 
 r"""This module provides the :py:class:`SpinSystem` class, allowing specification
 of a specific spin system according to the nuclear idenitites, isotropic chemical
@@ -138,7 +138,6 @@ class SpinSystem(CartesianBasis):
             * A ``str`` satisfying the regex ``r"-?\d+C"``. The temperature will be
               taken to be in Celcius.
 
-
         .. warning::
 
             **Current bug**
@@ -146,6 +145,7 @@ class SpinSystem(CartesianBasis):
             Negative Celcius specifications (``"-\d+C"``) are not supported currently,
             and will raise an error if given. PLease manually convert to Kelvin.
         """
+        self.__couplings_on = True
         self.temperature = _sanity.process_temperature(temperature)
         self.field = _sanity.process_field(field)
         self.spin_dict = _sanity.process_spins(spins, default_nucleus)
@@ -153,7 +153,21 @@ class SpinSystem(CartesianBasis):
             [(spin.nucleus.multiplicity - 1) / 2 for spin in self.spin_dict.values()]
         )
         if not all([I == 0.5 for I in self.spins]):
-            raise ValueError("Spin-1/2 nuclei are only supported currently!")
+            raise ValueError("Only spin-1/2 nuclei are supported currently!")
+
+    def exclude_couplings(self) -> None:
+        """Spin system's couplings will be turned off.
+
+        Can be reversed with :py:meth:`include_couplings`.
+        """
+        self.__couplings_on = False
+
+    def include_couplings(self) -> None:
+        """Spin system's couplings will be turned on.
+
+        Can be reversed with :py:meth:`exclude_couplings`.
+        """
+        self.__couplings_on = True
 
     @classmethod
     def new_random(
@@ -304,11 +318,15 @@ class SpinSystem(CartesianBasis):
 
     @property
     def couplings(self) -> np.ndarray:
-        couplings = np.zeros((self.nspins, self.nspins))
-        for i, spin in self.spin_dict.items():
-            for j, coupling in spin.couplings.items():
-                if i < j:
-                    couplings[i - 1, j - 1] = coupling
+        couplings = np.zeros((self.nspins, self.nspins), dtype="float64")
+
+        if self.__couplings_on:
+            for i, spin in self.spin_dict.items():
+                for j, coupling in spin.couplings.items():
+                    if i < j:
+                        couplings[i - 1, j - 1] = coupling
+        else:
+            couplings
 
         return couplings + couplings.T
 

@@ -47,7 +47,7 @@
 <span></span><span class="c1"># spin_system.py</span>
 <span class="c1"># Simon Hulse</span>
 <span class="c1"># simon.hulse@chem.ox.ac.uk</span>
-<span class="c1"># Last Edited: Mon 09 May 2022 17:14:32 BST</span>
+<span class="c1"># Last Edited: Fri 13 May 2022 10:55:09 BST</span>
 
 <span class="sa">r</span><span class="sd">&quot;&quot;&quot;This module provides the :py:class:`SpinSystem` class, allowing specification</span>
 <span class="sd">of a specific spin system according to the nuclear idenitites, isotropic chemical</span>
@@ -184,7 +184,6 @@
 <span class="sd">            * A ``str`` satisfying the regex ``r&quot;-?\d+C&quot;``. The temperature will be</span>
 <span class="sd">              taken to be in Celcius.</span>
 
-
 <span class="sd">        .. warning::</span>
 
 <span class="sd">            **Current bug**</span>
@@ -192,6 +191,7 @@
 <span class="sd">            Negative Celcius specifications (``&quot;-\d+C&quot;``) are not supported currently,</span>
 <span class="sd">            and will raise an error if given. PLease manually convert to Kelvin.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__couplings_on</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">_sanity</span><span class="o">.</span><span class="n">process_temperature</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">_sanity</span><span class="o">.</span><span class="n">process_field</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span> <span class="o">=</span> <span class="n">_sanity</span><span class="o">.</span><span class="n">process_spins</span><span class="p">(</span><span class="n">spins</span><span class="p">,</span> <span class="n">default_nucleus</span><span class="p">)</span>
@@ -199,7 +199,21 @@
             <span class="p">[(</span><span class="n">spin</span><span class="o">.</span><span class="n">nucleus</span><span class="o">.</span><span class="n">multiplicity</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">I</span> <span class="o">==</span> <span class="mf">0.5</span> <span class="k">for</span> <span class="n">I</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spins</span><span class="p">]):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Spin-1/2 nuclei are only supported currently!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only spin-1/2 nuclei are supported currently!&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpinSystem.exclude_couplings"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.exclude_couplings">[docs]</a>    <span class="k">def</span> <span class="nf">exclude_couplings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Spin system&#39;s couplings will be turned off.</span>
+
+<span class="sd">        Can be reversed with :py:meth:`include_couplings`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__couplings_on</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="SpinSystem.include_couplings"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.include_couplings">[docs]</a>    <span class="k">def</span> <span class="nf">include_couplings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Spin system&#39;s couplings will be turned on.</span>
+
+<span class="sd">        Can be reversed with :py:meth:`exclude_couplings`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__couplings_on</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="SpinSystem.new_random"><a class="viewcode-back" href="../../content/references/spin_system.html#nmr_sims.spin_system.SpinSystem.new_random">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">new_random</span><span class="p">(</span>
@@ -350,11 +364,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">couplings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="n">couplings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">coupling</span> <span class="ow">in</span> <span class="n">spin</span><span class="o">.</span><span class="n">couplings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>
-                    <span class="n">couplings</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">coupling</span>
+        <span class="n">couplings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nspins</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__couplings_on</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">spin</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spin_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">coupling</span> <span class="ow">in</span> <span class="n">spin</span><span class="o">.</span><span class="n">couplings</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">j</span><span class="p">:</span>
+                        <span class="n">couplings</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">coupling</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">couplings</span>
 
         <span class="k">return</span> <span class="n">couplings</span> <span class="o">+</span> <span class="n">couplings</span><span class="o">.</span><span class="n">T</span>
 

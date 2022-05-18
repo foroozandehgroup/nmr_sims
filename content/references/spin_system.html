@@ -147,15 +147,13 @@ taken to be in Kelvin.</p></li>
 taken to be in Celcius.</p></li>
 </ul>
 </p></li>
+<li><p><strong>warning::</strong> (<em>..</em>) – <p><strong>Current bug</strong></p>
+<p>Negative Celcius specifications (<code class="docutils literal notranslate"><span class="pre">&quot;-\d+C&quot;</span></code>) are not supported currently,
+and will raise an error if given. PLease manually convert to Kelvin.</p>
+</p></li>
 </ul>
 </dd>
 </dl>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><strong>Current bug</strong></p>
-<p>Negative Celcius specifications (<code class="docutils literal notranslate"><span class="pre">&quot;-\d+C&quot;</span></code>) are not supported currently,
-and will raise an error if given. PLease manually convert to Kelvin.</p>
-</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.Ix">
 <span class="sig-name descname"><span class="pre">Ix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nucleus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.Ix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.Ix" title="Permalink to this definition">¶</a></dt>
@@ -263,6 +261,18 @@ operator.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.exclude_couplings">
+<span class="sig-name descname"><span class="pre">exclude_couplings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.exclude_couplings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.exclude_couplings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spin system’s couplings will be turned off.</p>
+<p>Can be reversed with <a class="reference internal" href="#nmr_sims.spin_system.SpinSystem.include_couplings" title="nmr_sims.spin_system.SpinSystem.include_couplings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">include_couplings()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.hamiltonian">
 <span class="sig-name descname"><span class="pre">hamiltonian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decouple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.hamiltonian"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.hamiltonian" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the Hamiltonian for the spin system.</p>
@@ -283,6 +293,18 @@ transmtter offset of 5000Hz for proton.</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nmr_sims.spin_system.SpinSystem.include_couplings">
+<span class="sig-name descname"><span class="pre">include_couplings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/nmr_sims/spin_system.html#SpinSystem.include_couplings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#nmr_sims.spin_system.SpinSystem.include_couplings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spin system’s couplings will be turned on.</p>
+<p>Can be reversed with <a class="reference internal" href="#nmr_sims.spin_system.SpinSystem.exclude_couplings" title="nmr_sims.spin_system.SpinSystem.exclude_couplings"><code class="xref py py-meth docutils literal notranslate"><span class="pre">exclude_couplings()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
 </dd>
 </dl>
 </dd></dl>
